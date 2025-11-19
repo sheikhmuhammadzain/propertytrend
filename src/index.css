@@ -1,0 +1,285 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Area Extended Font Face Declarations */
+@font-face {
+  font-family: 'Area Extended';
+  src: url('./assets/fonts/AreaExtended-Semibold.woff2') format('woff2'),
+       url('./assets/fonts/AreaExtended-Semibold.woff') format('woff'),
+       url('./assets/fonts/AreaExtended-Semibold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Area Extended';
+  src: url('./assets/fonts/AreaExtended-Bold.woff2') format('woff2'),
+       url('./assets/fonts/AreaExtended-Bold.woff') format('woff'),
+       url('./assets/fonts/AreaExtended-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --background: 0 0% 100%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    /* Aurora Background Variables */
+    --white: #ffffff;
+    --black: #000000;
+    --transparent: transparent;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Arial', 'Helvetica', sans-serif;
+  }
+}
+
+@layer utilities {
+  /* Animation utilities */
+  .animate-fade-in {
+    @apply animate-[fadeIn_0.6s_ease-out_forwards];
+  }
+
+  .animate-scale-in {
+    @apply animate-[scaleIn_0.5s_ease-out_forwards];
+  }
+
+  .delay-100 {
+    animation-delay: 0.1s;
+  }
+
+  .delay-200 {
+    animation-delay: 0.2s;
+  }
+
+  .delay-300 {
+    animation-delay: 0.3s;
+  }
+
+  .delay-500 {
+    animation-delay: 0.5s;
+  }
+
+  .delay-600 {
+    animation-delay: 0.6s;
+  }
+
+  .delay-700 {
+    animation-delay: 0.7s;
+  }
+
+  .delay-800 {
+    animation-delay: 0.8s;
+  }
+
+  .delay-900 {
+    animation-delay: 0.9s;
+  }
+
+  .delay-1000 {
+    animation-delay: 1s;
+  }
+
+  /* Custom keyframes */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Typography Utilities */
+  .font-headline {
+    font-family: 'Arial', 'Helvetica', sans-serif;
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: 0.35em;
+    font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  }
+
+  .font-area-extended {
+    font-family: 'Arial', 'Helvetica', sans-serif;
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: 0.35em;
+    font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  }
+
+  .font-area-extended-alt {
+    font-family: 'Arial', 'Helvetica', sans-serif;
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: 0.35em;
+    font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  }
+
+  .font-subheadline {
+    font-family: 'Arial', 'Helvetica', sans-serif;
+    font-weight: 500;
+  }
+
+  .font-body {
+    font-family: 'Arial', 'Helvetica', sans-serif;
+    font-weight: 300;
+  }
+
+  /* Typography Scale Classes */
+  .text-headline-xl {
+    @apply font-headline text-4xl lg:text-5xl xl:text-6xl;
+  }
+
+  .text-headline-lg {
+    @apply font-headline text-3xl lg:text-4xl xl:text-5xl;
+  }
+
+  .text-headline-md {
+    @apply font-headline text-2xl lg:text-3xl xl:text-4xl;
+  }
+
+  .text-headline-sm {
+    @apply font-headline text-xl lg:text-2xl xl:text-3xl;
+  }
+
+  .text-subheadline-xl {
+    @apply font-subheadline text-2xl lg:text-3xl xl:text-4xl;
+  }
+
+  .text-subheadline-lg {
+    @apply font-subheadline text-xl lg:text-2xl xl:text-3xl;
+  }
+
+  .text-subheadline-md {
+    @apply font-subheadline text-lg lg:text-xl xl:text-2xl;
+  }
+
+  .text-subheadline-sm {
+    @apply font-subheadline text-base lg:text-lg xl:text-xl;
+  }
+
+  .text-body-xl {
+    @apply font-body text-lg lg:text-xl xl:text-2xl;
+  }
+
+  .text-body-lg {
+    @apply font-body text-base lg:text-lg xl:text-xl;
+  }
+
+  .text-body-md {
+    @apply font-body text-sm lg:text-base xl:text-lg;
+  }
+
+  .text-body-sm {
+    @apply font-body text-xs lg:text-sm xl:text-base;
+  }
+}
