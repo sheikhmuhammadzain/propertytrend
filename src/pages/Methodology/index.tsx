@@ -1,219 +1,309 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import Navbar from '@/components/containers/Navbar'
 import Footer from '@/components/containers/Footer'
-import { Database, Filter, Layers, CalendarDays, BarChart3, ArrowRight, ArrowDown } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Database, Filter, Layers, CalendarDays, BarChart3, ArrowRight, ArrowDown, ArrowLeft, Download } from 'lucide-react'
 import methodologyPdf from '@/assets/methodology.pdf'
 
-const SectionTitle: React.FC<{children: React.ReactNode}> = ({ children }) => (
-  <h3 className="mt-8 mb-2 font-light uppercase tracking-[0.2em] text-[#3A3B40] text-sm">{children}</h3>
-)
-
-const P: React.FC<{children: React.ReactNode; className?: string}> = ({ children, className = '' }) => (
-  <p className={`text-[#3A3B40] text-sm leading-relaxed ${className}`}>{children}</p>
+const MetricCard: React.FC<{
+  number: string
+  title: string
+  description: string
+  example: string
+}> = ({ number, title, description, example }) => (
+  <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow duration-300">
+    <div className="flex items-start gap-4">
+      <div className="flex-shrink-0 w-12 h-12 bg-black text-white rounded-lg flex items-center justify-center font-light text-lg">
+        {number}
+      </div>
+      <div className="flex-1">
+        <h3 className="font-light uppercase tracking-[0.15em] text-black text-sm mb-3">{title}</h3>
+        <p className="text-gray-600 text-sm leading-relaxed mb-2">
+          <span className="font-medium text-black">What it means:</span> {description}
+        </p>
+        <p className="text-gray-600 text-sm leading-relaxed">
+          <span className="font-medium text-black">Example:</span> {example}
+        </p>
+      </div>
+    </div>
+  </div>
 )
 
 const MethodologyPage: React.FC = () => {
+  const navigate = useNavigate()
   const lastUpdated = new Date().toLocaleDateString()
+
+  const metrics = [
+    {
+      number: '1',
+      title: 'New Listings',
+      description: 'The number of properties that came onto the market during the selected month.',
+      example: 'If a property was listed for sale in October 2025, it is counted as a New Listing for that month.'
+    },
+    {
+      number: '2',
+      title: 'Pending / Signed Contract',
+      description: 'The number of properties that went under contract (accepted an offer) during the selected month.',
+      example: 'If a home was listed earlier and went under contract in October 2025, it\'s counted here.'
+    },
+    {
+      number: '3',
+      title: 'Sold and Closed',
+      description: 'The number of properties that completed the sale process and officially closed in the selected month.',
+      example: 'If a deal closed in October 2025, that sale appears in this column.'
+    },
+    {
+      number: '4',
+      title: 'Price Adjustments',
+      description: 'The total number of price changes (increases + decreases) made to active listings during the month.',
+      example: 'If a seller adjusted their listing price in October 2025, it\'s counted here.'
+    },
+    {
+      number: '5',
+      title: 'Total Actives',
+      description: 'The total number of listings that were still on the market (active status) at the end of the month.',
+      example: 'If a property hadn\'t sold or gone under contract by the end of October, it\'s counted here.'
+    },
+    {
+      number: '6',
+      title: 'DOM (Days on Market)',
+      description: 'The median number of days that properties took to sell during the selected month. The median gives a more accurate reflection of typical selling time.',
+      example: 'If half of the homes sold in 20 days or less, and half took longer, then the DOM = 20.'
+    },
+    {
+      number: '7',
+      title: 'List to Close +/-',
+      description: 'The percentage difference between the original list price and the final sale price.',
+      example: 'A home listed at $1M that sells for $950K shows a -5% List to Close ratio.'
+    },
+    {
+      number: '8',
+      title: 'Last Month',
+      description: 'The number of properties that sold and closed in the previous month.',
+      example: 'If October 2025 is the current month, this shows closings from September 2025.'
+    },
+    {
+      number: '9',
+      title: 'Last Quarter',
+      description: 'The number of homes that sold in the three months prior to the current month.',
+      example: 'For October 2025, this covers July–September 2025.'
+    },
+    {
+      number: '10',
+      title: 'Last Year',
+      description: 'The number of homes that sold in the same month last year.',
+      example: 'For October 2025, this compares to October 2024 sales activity.'
+    }
+  ]
 
   return (
     <div className="min-h-screen bg-[#F1EFED]">
       <Navbar />
 
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <header className="mb-6 text-center">
-          <h1 className="uppercase tracking-[0.35em] font-light text-2xl md:text-3xl text-[#3A3B40]">Market Summary Methodology</h1>
-          <div className="mt-3 text-xs text-[#3A3B40]/80">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Back Button */}
+        <div className="mb-6">
+          <Button
+            onClick={() => navigate('/')}
+            variant="outline"
+            className="bg-white/70 backdrop-blur-md border border-gray-200/60 text-black hover:bg-black hover:text-white transition-all duration-300 font-light uppercase tracking-[0.1em]"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Home
+          </Button>
+        </div>
+
+        {/* Header */}
+        <header className="mb-12 text-center">
+          <h1 className="uppercase tracking-[0.35em] font-light text-3xl md:text-4xl text-black mb-4">
+            Market Summary Methodology
+          </h1>
+          <div className="flex items-center justify-center gap-4 mt-4 text-xs text-gray-600 font-light tracking-[0.1em] uppercase">
             <span>Last updated: {lastUpdated}</span>
-            <span className="mx-2">•</span>
+            <span className="text-gray-400">•</span>
             <span>Data Source: Houston MLS</span>
           </div>
         </header>
 
-        <section className="space-y-4">
-          <P>
+        {/* Introduction */}
+        <section className="bg-white border border-gray-200 rounded-lg p-8 mb-12 shadow-sm">
+          <p className="text-gray-700 text-base leading-relaxed font-light">
             This report summarizes key real estate market activity. It focuses on Single Family Homes and Condominiums,
             providing a clear snapshot of current market trends and performance. Each column in the table represents a
-            specific measure of market activity. Here’s what each one means and how it’s calculated:
-          </P>
+            specific measure of market activity. Here's what each one means and how it's calculated:
+          </p>
+        </section>
 
-          <div className="space-y-4">
-            <div>
-              <SectionTitle>1️⃣ New Listings</SectionTitle>
-              <P><strong>What it means:</strong> The number of properties that came onto the market during the selected month.</P>
-              <P><strong>Example:</strong> If a property was listed for sale in October 2025, it is counted as a New Listing for that month.</P>
+        {/* Key Metrics */}
+        <section className="mb-12">
+          <h2 className="font-light uppercase tracking-[0.2em] text-black text-xl mb-6">Key Metrics Explained</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {metrics.map((metric) => (
+              <MetricCard key={metric.number} {...metric} />
+            ))}
+          </div>
+        </section>
+
+        {/* Property Types */}
+        <section className="bg-white border border-gray-200 rounded-lg p-8 mb-12 shadow-sm">
+          <h2 className="font-light uppercase tracking-[0.2em] text-black text-lg mb-4">Property Types Included</h2>
+          <p className="text-gray-700 text-sm leading-relaxed font-light mb-4">
+            We report on two categories of properties:
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-[#F1EFED] border border-gray-200 rounded-lg p-4">
+              <h3 className="font-medium text-black text-sm mb-2">Single Family Homes</h3>
+              <p className="text-gray-600 text-xs leading-relaxed">
+                Detached houses and stand-alone homes (includes "Single Family" and "Detached" types).
+              </p>
             </div>
-            <div>
-              <SectionTitle>2️⃣ Pending / Signed Contract</SectionTitle>
-              <P><strong>What it means:</strong> The number of properties that went under contract (accepted an offer) during the selected month.</P>
-              <P><strong>Example:</strong> If a home was listed earlier and went under contract in October 2025, it’s counted here.</P>
-            </div>
-            <div>
-              <SectionTitle>3️⃣ Sold and Closed</SectionTitle>
-              <P><strong>What it means:</strong> The number of properties that completed the sale process and officially closed in the selected month.</P>
-              <P><strong>Example:</strong> If a deal closed in October 2025, that sale appears in this column.</P>
-            </div>
-            <div>
-              <SectionTitle>4️⃣ Price Increased</SectionTitle>
-              <P><strong>What it means:</strong> The number of listings where the asking price was raised during the month.</P>
-              <P><strong>Example:</strong> If a seller increased their listing price in October 2025, it’s counted once here.</P>
-            </div>
-            <div>
-              <SectionTitle>5️⃣ Price Decreased</SectionTitle>
-              <P><strong>What it means:</strong> The number of listings where the asking price was reduced during the month.</P>
-              <P><strong>Example:</strong> If a property’s price dropped from $1.5M to $1.4M during October 2025, it’s included here.</P>
-            </div>
-            <div>
-              <SectionTitle>6️⃣ Total Actives</SectionTitle>
-              <P><strong>What it means:</strong> The total number of listings that were still on the market (active status) at the end of the month.</P>
-              <P><strong>Example:</strong> If a property hadn’t sold or gone under contract by the end of October, it’s counted here.</P>
-            </div>
-            <div>
-              <SectionTitle>7️⃣ DOM (Days on Market)</SectionTitle>
-              <P><strong>What it means:</strong> The median number of days that properties took to sell during the selected month.</P>
-              <P><strong>Why “median”?</strong> The median gives a more accurate reflection of the typical selling time, since a few very slow or very fast sales can distort an average.</P>
-              <P><strong>Example:</strong> If half of the homes sold in 20 days or less, and half took longer, then the DOM = 20.</P>
-            </div>
-            <div>
-              <SectionTitle>8️⃣ Last Month</SectionTitle>
-              <P><strong>What it means:</strong> The number of properties that sold and closed in the previous month (the month before the one being shown).</P>
-              <P><strong>Example:</strong> If October 2025 is the current month, this column shows the number of closings from September 2025.</P>
-            </div>
-            <div>
-              <SectionTitle>9️⃣ Last Quarter</SectionTitle>
-              <P><strong>What it means:</strong> The number of homes that sold in the three months prior to the current month.</P>
-              <P><strong>Example:</strong> For October 2025, this covers July–September 2025.</P>
-            </div>
-            <div>
-              <SectionTitle>🔟 Last Year</SectionTitle>
-              <P><strong>What it means:</strong> The number of homes that sold in the same month last year.</P>
-              <P><strong>Example:</strong> For October 2025, this compares to October 2024 sales activity.</P>
+            <div className="bg-[#F1EFED] border border-gray-200 rounded-lg p-4">
+              <h3 className="font-medium text-black text-sm mb-2">Condominiums</h3>
+              <p className="text-gray-600 text-xs leading-relaxed">
+                Attached units, high-rise or low-rise condos (includes "Condo," "Condominium," and "High-Rise" types).
+              </p>
             </div>
           </div>
+          <p className="text-gray-600 text-xs leading-relaxed mt-4 font-light">
+            Other property types (townhomes, land, rentals, etc.) are not included in these totals.
+          </p>
+        </section>
 
-          <div>
-            <SectionTitle>🏠 Property Types Included</SectionTitle>
-            <P>We report on two categories of properties:</P>
-            <ul className="list-disc ml-5 text-[#3A3B40] text-sm leading-relaxed">
-              <li><strong>Single Family Homes:</strong> Detached houses and stand-alone homes (includes “Single Family” and “Detached” types).</li>
-              <li><strong>Condominiums:</strong> Attached units, high-rise or low-rise condos (includes “Condo,” “Condominium,” and “High-Rise” types).</li>
-            </ul>
-            <P className="mt-2">Other property types (townhomes, land, rentals, etc.) are not included in these totals.</P>
-          </div>
-
-          <div>
-            <SectionTitle>💰 Price Ranges</SectionTitle>
-            <P>Each table row represents a price band, so you can see how activity changes at different price levels:</P>
-            <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 text-sm text-[#3A3B40]">
-              <div className="font-light uppercase tracking-[0.1em]">Price Range</div>
-              <div className="font-light uppercase tracking-[0.1em]">Example</div>
-              <div>1–2M</div><div>$1,000,000 – $1,999,999</div>
-              <div>2–3M</div><div>$2,000,000 – $2,999,999</div>
-              <div>…</div><div>…</div>
-              <div>10M+</div><div>$10,000,000 and above</div>
+        {/* Price Ranges */}
+        <section className="bg-white border border-gray-200 rounded-lg p-8 mb-12 shadow-sm">
+          <h2 className="font-light uppercase tracking-[0.2em] text-black text-lg mb-4">Price Ranges</h2>
+          <p className="text-gray-700 text-sm leading-relaxed font-light mb-6">
+            Each table row represents a price band, so you can see how activity changes at different price levels:
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-[#F1EFED] border border-gray-200 rounded-lg p-3 text-center">
+              <div className="font-medium text-black text-sm">1–2M</div>
+              <div className="text-gray-600 text-xs mt-1">$1.0M – $1.9M</div>
+            </div>
+            <div className="bg-[#F1EFED] border border-gray-200 rounded-lg p-3 text-center">
+              <div className="font-medium text-black text-sm">2–3M</div>
+              <div className="text-gray-600 text-xs mt-1">$2.0M – $2.9M</div>
+            </div>
+            <div className="bg-[#F1EFED] border border-gray-200 rounded-lg p-3 text-center">
+              <div className="font-medium text-black text-sm">3–5M</div>
+              <div className="text-gray-600 text-xs mt-1">$3.0M – $4.9M</div>
+            </div>
+            <div className="bg-[#F1EFED] border border-gray-200 rounded-lg p-3 text-center">
+              <div className="font-medium text-black text-sm">10M+</div>
+              <div className="text-gray-600 text-xs mt-1">$10.0M and above</div>
             </div>
           </div>
+        </section>
 
-          <div>
-            <SectionTitle>📅 Time Period</SectionTitle>
-            <P>All figures are based on the selected month.</P>
-            <P>
-              <strong>For example:</strong> “October 2025” means activity between Oct 1, 2025 and Oct 31, 2025. Numbers update automatically each month.
-            </P>
-          </div>
-
-          <div>
-            <SectionTitle>✅ Notes on Accuracy</SectionTitle>
-            <ul className="list-disc ml-5 text-[#3A3B40] text-sm leading-relaxed">
-              <li>“Active” properties are counted based on their current listing status.</li>
-              <li>“New,” “Pending,” and “Sold” are based on the date of each event during that month.</li>
-              <li>DOM uses closed sales only — unsold listings are not included.</li>
-              <li>Numbers include only Single Family Homes and Condominiums in Houston.</li>
-            </ul>
-          </div>
-
-          <div>
-            <SectionTitle>📈 How to Interpret the Table</SectionTitle>
-            <ul className="list-disc ml-5 text-[#3A3B40] text-sm leading-relaxed">
-              <li>A higher “New Listings” number means more inventory is entering the market.</li>
-              <li>A higher “Sold and Closed” number means more sales activity that month.</li>
-              <li>A larger “Total Actives” number may indicate growing supply (potential for price pressure).</li>
-              <li>DOM helps gauge how quickly homes are moving — a shorter DOM means faster sales.</li>
-              <li>Last Month / Last Quarter / Last Year let you compare short-term and long-term market trends.</li>
-            </ul>
-          </div>
-
-          <div>
-            <SectionTitle>How the Data Flows</SectionTitle>
-            <div className="mt-3 rounded-xl border border-gray-200/60 bg-white/80 backdrop-blur-sm p-5 md:p-6 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.06)]">
-              <div className="flex flex-col md:flex-row items-center md:items-center gap-4 md:gap-6 text-[#3A3B40]">
-                {/* Step 1 */}
-                <div className="flex items-center md:flex-col md:items-center gap-3 md:gap-2">
-                  <div className="h-10 w-10 rounded-full bg-[#F1EFED] border border-gray-300 flex items-center justify-center">
-                    <Database className="w-5 h-5" />
-                  </div>
-                  <div className="text-xs font-light uppercase tracking-[0.15em] text-center">MLS Feed</div>
-                </div>
-                {/* Connector */}
-                <ArrowRight className="hidden md:block w-5 h-5 text-[#3A3B40]" />
-                <ArrowDown className="md:hidden w-5 h-5 text-[#3A3B40]" />
-
-                {/* Step 2 */}
-                <div className="flex items-center md:flex-col md:items-center gap-3 md:gap-2">
-                  <div className="h-10 w-10 rounded-full bg-[#F1EFED] border border-gray-300 flex items-center justify-center">
-                    <Filter className="w-5 h-5" />
-                  </div>
-                  <div className="text-xs font-light uppercase tracking-[0.15em] text-center">Filtering (SF / Condo)</div>
-                </div>
-                <ArrowRight className="hidden md:block w-5 h-5 text-[#3A3B40]" />
-                <ArrowDown className="md:hidden w-5 h-5 text-[#3A3B40]" />
-
-                {/* Step 3 */}
-                <div className="flex items-center md:flex-col md:items-center gap-3 md:gap-2">
-                  <div className="h-10 w-10 rounded-full bg-[#F1EFED] border border-gray-300 flex items-center justify-center">
-                    <Layers className="w-5 h-5" />
-                  </div>
-                  <div className="text-xs font-light uppercase tracking-[0.15em] text-center">Price Band Segmentation</div>
-                </div>
-                <ArrowRight className="hidden md:block w-5 h-5 text-[#3A3B40]" />
-                <ArrowDown className="md:hidden w-5 h-5 text-[#3A3B40]" />
-
-                {/* Step 4 */}
-                <div className="flex items-center md:flex-col md:items-center gap-3 md:gap-2">
-                  <div className="h-10 w-10 rounded-full bg-[#F1EFED] border border-gray-300 flex items-center justify-center">
-                    <CalendarDays className="w-5 h-5" />
-                  </div>
-                  <div className="text-xs font-light uppercase tracking-[0.15em] text-center">Monthly Metrics</div>
-                </div>
-                <ArrowRight className="hidden md:block w-5 h-5 text-[#3A3B40]" />
-                <ArrowDown className="md:hidden w-5 h-5 text-[#3A3B40]" />
-
-                {/* Step 5 */}
-                <div className="flex items-center md:flex-col md:items-center gap-3 md:gap-2">
-                  <div className="h-10 w-10 rounded-full bg-[#F1EFED] border border-gray-300 flex items-center justify-center">
-                    <BarChart3 className="w-5 h-5" />
-                  </div>
-                  <div className="text-xs font-light uppercase tracking-[0.15em] text-center">Refined Report Dashboard</div>
-                </div>
+        {/* Data Flow */}
+        <section className="bg-white border border-gray-200 rounded-lg p-8 mb-12 shadow-sm">
+          <h2 className="font-light uppercase tracking-[0.2em] text-black text-lg mb-6">How the Data Flows</h2>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex flex-col items-center gap-2 flex-1">
+              <div className="h-16 w-16 rounded-full bg-black text-white flex items-center justify-center">
+                <Database className="w-8 h-8" />
               </div>
+              <div className="text-xs font-light uppercase tracking-[0.15em] text-center text-gray-700">MLS Feed</div>
             </div>
+            <ArrowRight className="hidden md:block w-6 h-6 text-gray-400" />
+            <ArrowDown className="md:hidden w-6 h-6 text-gray-400" />
 
-            <p className="mt-3 text-xs text-[#3A3B40]/80 leading-relaxed">
-              Data focuses on Houston’s established luxury neighborhoods, not all MLS listings citywide. This selective scope ensures
-              the report reflects the true high-end market rather than broad averages seen on HAR.com.
-            </p>
+            <div className="flex flex-col items-center gap-2 flex-1">
+              <div className="h-16 w-16 rounded-full bg-black text-white flex items-center justify-center">
+                <Filter className="w-8 h-8" />
+              </div>
+              <div className="text-xs font-light uppercase tracking-[0.15em] text-center text-gray-700">Property Filtering</div>
+            </div>
+            <ArrowRight className="hidden md:block w-6 h-6 text-gray-400" />
+            <ArrowDown className="md:hidden w-6 h-6 text-gray-400" />
+
+            <div className="flex flex-col items-center gap-2 flex-1">
+              <div className="h-16 w-16 rounded-full bg-black text-white flex items-center justify-center">
+                <Layers className="w-8 h-8" />
+              </div>
+              <div className="text-xs font-light uppercase tracking-[0.15em] text-center text-gray-700">Price Segmentation</div>
+            </div>
+            <ArrowRight className="hidden md:block w-6 h-6 text-gray-400" />
+            <ArrowDown className="md:hidden w-6 h-6 text-gray-400" />
+
+            <div className="flex flex-col items-center gap-2 flex-1">
+              <div className="h-16 w-16 rounded-full bg-black text-white flex items-center justify-center">
+                <CalendarDays className="w-8 h-8" />
+              </div>
+              <div className="text-xs font-light uppercase tracking-[0.15em] text-center text-gray-700">Monthly Metrics</div>
+            </div>
+            <ArrowRight className="hidden md:block w-6 h-6 text-gray-400" />
+            <ArrowDown className="md:hidden w-6 h-6 text-gray-400" />
+
+            <div className="flex flex-col items-center gap-2 flex-1">
+              <div className="h-16 w-16 rounded-full bg-black text-white flex items-center justify-center">
+                <BarChart3 className="w-8 h-8" />
+              </div>
+              <div className="text-xs font-light uppercase tracking-[0.15em] text-center text-gray-700">Dashboard</div>
+            </div>
           </div>
+          <p className="mt-6 text-xs text-gray-600 leading-relaxed font-light">
+            Data focuses on Houston's established luxury neighborhoods, not all MLS listings citywide. This selective scope ensures
+            the report reflects the true high-end market rather than broad averages seen on HAR.com.
+          </p>
+        </section>
 
-          <P className="text-xs text-[#3A3B40]/70 mt-6">
-            For a full explanation of how The Refined Report compiles and validates its data,{' '}
-            <a href={methodologyPdf} download className="underline">download the full methodology PDF</a>.
-          </P>
+        {/* Interpretation Guide */}
+        <section className="bg-white border border-gray-200 rounded-lg p-8 mb-12 shadow-sm">
+          <h2 className="font-light uppercase tracking-[0.2em] text-black text-lg mb-4">How to Interpret the Table</h2>
+          <ul className="space-y-3">
+            <li className="flex items-start gap-3">
+              <div className="flex-shrink-0 w-1.5 h-1.5 bg-black rounded-full mt-2"></div>
+              <p className="text-gray-700 text-sm leading-relaxed font-light">
+                A higher "New Listings" number means more inventory is entering the market.
+              </p>
+            </li>
+            <li className="flex items-start gap-3">
+              <div className="flex-shrink-0 w-1.5 h-1.5 bg-black rounded-full mt-2"></div>
+              <p className="text-gray-700 text-sm leading-relaxed font-light">
+                A higher "Sold and Closed" number means more sales activity that month.
+              </p>
+            </li>
+            <li className="flex items-start gap-3">
+              <div className="flex-shrink-0 w-1.5 h-1.5 bg-black rounded-full mt-2"></div>
+              <p className="text-gray-700 text-sm leading-relaxed font-light">
+                A larger "Total Actives" number may indicate growing supply (potential for price pressure).
+              </p>
+            </li>
+            <li className="flex items-start gap-3">
+              <div className="flex-shrink-0 w-1.5 h-1.5 bg-black rounded-full mt-2"></div>
+              <p className="text-gray-700 text-sm leading-relaxed font-light">
+                DOM helps gauge how quickly homes are moving — a shorter DOM means faster sales.
+              </p>
+            </li>
+            <li className="flex items-start gap-3">
+              <div className="flex-shrink-0 w-1.5 h-1.5 bg-black rounded-full mt-2"></div>
+              <p className="text-gray-700 text-sm leading-relaxed font-light">
+                Last Month / Last Quarter / Last Year let you compare short-term and long-term market trends.
+              </p>
+            </li>
+          </ul>
+        </section>
+
+        {/* Download CTA */}
+        <section className="text-center">
+          <a
+            href={methodologyPdf}
+            download
+            className="inline-flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors duration-300 font-light uppercase tracking-[0.1em] text-sm"
+          >
+            <Download className="w-4 h-4" />
+            Download Full Methodology PDF
+          </a>
         </section>
       </main>
 
-      <div className="bg-gray-100 border-t border-gray-200">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
-          <h4 className="font-light uppercase tracking-[0.15em] text-[#3A3B40] text-xs">Data Integrity Statement</h4>
-          <p className="mt-2 text-[#3A3B40] text-xs leading-relaxed">
+      {/* Data Integrity Footer */}
+      <div className="bg-white border-t border-gray-200">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
+          <h4 className="font-light uppercase tracking-[0.2em] text-black text-sm mb-3">Data Integrity Statement</h4>
+          <p className="text-gray-600 text-sm leading-relaxed font-light max-w-3xl mx-auto">
             The Refined Report aggregates verified Houston MLS data filtered for Single-Family and Condominium properties only. Figures
             auto-refresh monthly. Discrepancies with HAR.com reflect property-type alignment, timing of extraction, and active-status
             definitions.

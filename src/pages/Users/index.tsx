@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Search, Filter, Users as UsersIcon, Mail, Calendar, Shield, CheckCircle, XCircle, RefreshCw, Table } from 'lucide-react'
+import { Search, Filter, Users as UsersIcon, Mail, Calendar, Shield, CheckCircle, XCircle, RefreshCw, Table, ArrowLeft } from 'lucide-react'
 
 interface User {
   id: number
@@ -72,7 +72,7 @@ const Users = () => {
 
     // Verification filter
     if (verificationFilter !== 'all') {
-      filtered = filtered.filter(user => 
+      filtered = filtered.filter(user =>
         verificationFilter === 'verified' ? user.is_verified : !user.is_verified
       )
     }
@@ -132,8 +132,20 @@ const Users = () => {
   return (
     <div className="min-h-screen bg-[#F2F1EF] text-black">
       <Navbar />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Back Button */}
+        <div className="mb-6">
+          <Button
+            onClick={() => navigate('/')}
+            variant="outline"
+            className="bg-white border-2 border-black text-black hover:bg-black hover:text-white transition-all duration-300 font-light uppercase tracking-[0.1em]"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Home
+          </Button>
+        </div>
+
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-6">
@@ -298,11 +310,10 @@ const Users = () => {
                 </thead>
                 <tbody>
                   {filteredUsers.map((user, index) => (
-                    <tr 
-                      key={user.id} 
-                      className={`border-b border-gray-300 hover:bg-gray-50 transition-colors duration-200 ${
-                        index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-                      }`}
+                    <tr
+                      key={user.id}
+                      className={`border-b border-gray-300 hover:bg-gray-50 transition-colors duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                        }`}
                     >
                       <td className="py-4 px-6">
                         <div className="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center font-bold text-sm">
@@ -316,7 +327,7 @@ const Users = () => {
                         {user.user_email}
                       </td>
                       <td className="py-4 px-6">
-                        <Badge 
+                        <Badge
                           variant="outline"
                           className="border-black text-black bg-white font-light uppercase tracking-[0.1em]"
                         >
@@ -324,7 +335,7 @@ const Users = () => {
                         </Badge>
                       </td>
                       <td className="py-4 px-6">
-                        <Badge 
+                        <Badge
                           variant={user.is_verified ? "default" : "secondary"}
                           className={user.is_verified ? "bg-green-600 text-white border-green-600 font-light uppercase tracking-[0.1em]" : "bg-gray-200 text-black border-gray-300 font-light uppercase tracking-[0.1em]"}
                         >

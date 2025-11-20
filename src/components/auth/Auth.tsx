@@ -10,6 +10,8 @@ import { useNavigate } from 'react-router-dom';
 
 interface AuthProps {
   mode?: 'signup' | 'signin';
+  variant?: 'page' | 'modal';
+  onModeSwitch?: (newMode: 'signup' | 'signin') => void;
 }
 
 interface ValidationErrors {
@@ -19,7 +21,7 @@ interface ValidationErrors {
   confirmPassword?: string;
 }
 
-const Auth: React.FC<AuthProps> = ({ mode = 'signup' }) => {
+const Auth: React.FC<AuthProps> = ({ mode = 'signup', variant = 'page', onModeSwitch }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -66,10 +68,10 @@ const Auth: React.FC<AuthProps> = ({ mode = 'signup' }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (validateForm()) {
       setIsLoading(true);
-      
+
       if (isSignup) {
         const response = await apiService.signup({ fullName, email, password });
 
@@ -86,22 +88,22 @@ const Auth: React.FC<AuthProps> = ({ mode = 'signup' }) => {
             variant: "destructive",
           });
         }
-      } else {        
+      } else {
         const response = await apiService.signin({ email, password });
         if (response.success) {
           const { access_token, user } = response.data;
-          
-            if (access_token && user) {
-              login(access_token, user);
-              
-              toast({
-                title: "Welcome Back!",
-                description: "You have successfully signed in.",
-                variant: "default",
-              });
-              
-              navigate('/charts');
-            } else {
+
+          if (access_token && user) {
+            login(access_token, user);
+
+            toast({
+              title: "Welcome Back!",
+              description: "You have successfully signed in.",
+              variant: "default",
+            });
+
+            navigate('/charts');
+          } else {
             toast({
               title: "Sign In Failed",
               description: "Invalid response format. Please try again.",
@@ -116,7 +118,7 @@ const Auth: React.FC<AuthProps> = ({ mode = 'signup' }) => {
           });
         }
       }
-        
+
       setEmail('');
       setPassword('');
       setConfirmPassword('');
@@ -128,7 +130,7 @@ const Auth: React.FC<AuthProps> = ({ mode = 'signup' }) => {
 
   const handleGoogleAuth = async () => {
     setIsLoading(true);
-    
+
     try {
       if (isSignup) {
         // Google signup logic
@@ -156,36 +158,51 @@ const Auth: React.FC<AuthProps> = ({ mode = 'signup' }) => {
   const getInputClassName = (fieldName: keyof ValidationErrors) => {
     const baseClasses = "w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200";
     const hasError = errors[fieldName];
-    
+
     if (hasError) {
       return `${baseClasses} border-red-500 focus:ring-red-500`;
     }
-    
+
     return `${baseClasses} border-gray-200`;
   };
 
+  const handleModeSwitchClick = (e: React.MouseEvent, newMode: 'signup' | 'signin') => {
+    e.preventDefault();
+    if (isModal && onModeSwitch) {
+      onModeSwitch(newMode);
+    } else {
+      // For page variant, use normal link navigation
+      window.location.href = newMode === 'signup' ? '/signup' : '/login';
+    }
+  };
+
   const isSignup = mode === 'signup';
+  const isModal = variant === 'modal';
 
   return (
-    <div className="min-h-screen bg-[#F2F1EF] flex items-center justify-center px-4">
+    <div className={isModal ? "" : "min-h-screen bg-[#F2F1EF] flex items-center justify-center px-4"}>
       <div className="w-full max-w-md">
-        <div className="bg-white/80 backdrop-blur-sm border border-white/20 rounded-2xl shadow-2xl p-8">
+        <div className={isModal ? "" : "bg-white/80 backdrop-blur-sm border border-white/20 rounded-2xl shadow-2xl p-8"}>
           {/* Header */}
-          <div className="text-center mb-8">
-            <div className="mb-6">
-              <h1 className="text-headline-lg bg-gradient-to-r from-black via-gray-700 to-gray-500 bg-clip-text text-transparent">
-              The Refined Report
-              </h1>
-            </div>
+          <div className={isModal ? "text-center mb-4" : "text-center mb-8"}>
+            {!isModal && (
+              <div className="mb-6">
+                <h1 className="text-headline-lg bg-gradient-to-r from-black via-gray-700 to-gray-500 bg-clip-text text-transparent">
+                  The Refined Report
+                </h1>
+              </div>
+            )}
             <h2 className="text-subheadline-lg text-gray-800">
               {isSignup ? 'Create Account' : 'Welcome Back'}
             </h2>
-            <p className="text-body-md text-gray-600 mt-2">
-              {isSignup 
-                ? 'Join us to explore housing market insights' 
-                : 'Sign in to access your dashboard'
-              }
-            </p>
+            {!isModal && (
+              <p className="text-body-md text-gray-600 mt-2">
+                {isSignup
+                  ? 'Join us to explore housing market insights'
+                  : 'Sign in to access your dashboard'
+                }
+              </p>
+            )}
           </div>
 
           {/* Form */}
@@ -266,8 +283,8 @@ const Auth: React.FC<AuthProps> = ({ mode = 'signup' }) => {
               </div>
             )}
 
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={isLoading}
               className="w-full bg-gradient-to-r from-black via-gray-700 to-gray-500 hover:from-gray-800 hover:via-gray-600 hover:to-gray-400 text-white font-medium py-3 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
@@ -315,12 +332,22 @@ const Auth: React.FC<AuthProps> = ({ mode = 'signup' }) => {
           <div className="text-center mt-6">
             <p className="text-gray-600 text-body-sm">
               {isSignup ? 'Already have an account?' : "Don't have an account?"}
-              <a
-                href={isSignup ? '/login' : '/signup'}
-                className="text-blue-600 font-subheadline hover:underline ml-1 transition-colors duration-200"
-              >
-                {isSignup ? 'Sign in' : 'Sign up'}
-              </a>
+              {isModal ? (
+                <button
+                  type="button"
+                  onClick={(e) => handleModeSwitchClick(e, isSignup ? 'signin' : 'signup')}
+                  className="text-blue-600 font-subheadline hover:underline ml-1 transition-colors duration-200 cursor-pointer bg-transparent border-none p-0 outline-none focus:outline-none"
+                >
+                  {isSignup ? 'Sign in' : 'Sign up'}
+                </button>
+              ) : (
+                <a
+                  href={isSignup ? '/login' : '/signup'}
+                  className="text-blue-600 font-subheadline hover:underline ml-1 transition-colors duration-200"
+                >
+                  {isSignup ? 'Sign in' : 'Sign up'}
+                </a>
+              )}
             </p>
           </div>
 

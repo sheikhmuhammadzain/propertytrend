@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Select,
@@ -10,6 +10,8 @@ import {
 import Navbar from "@/components/containers/Navbar";
 import { apiService } from '@/services/apiServices';
 import { useAuth } from '@/context';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 import MedianSalesChart from '@/components/charts/MedianSalesChart';
 import SalesVolume from '@/components/charts/SalesVolume';
 import HistoricalTrend from '@/components/charts/HistoricalTrend';
@@ -97,7 +99,7 @@ const Home = () => {
     const response = await apiService.getChartData(`GET-Barometer?city=${selectedLocation}`)
     if (response.success) {
       setBeroMetricData(response.data)
-    }else {
+    } else {
       setBeroMetricData(null)
     }
     setBeroMetricDataLoading(false)
@@ -109,7 +111,7 @@ const Home = () => {
     const response = await apiService.getChartData(`historical-trend-11?city=${selectedLocation}`)
     if (response.success) {
       setHistoricalTrendData(response.data)
-    }else {
+    } else {
       setHistoricalTrendData(null)
     }
     setHistoricalTrendDataLoading(false)
@@ -132,7 +134,7 @@ const Home = () => {
     const response = await apiService.getChartData(`dom-trend-2?city=${selectedLocation}`)
     if (response.success) {
       setDomTrendData(response.data)
-    }else {
+    } else {
       setDomTrendData(null)
     }
     setDomTrendDataLoading(false)
@@ -143,7 +145,7 @@ const Home = () => {
     const response = await apiService.getChartData(`sales-volume-3?city=${selectedLocation}`)
     if (response.success) {
       setSalesVolumeChartData(response.data)
-    }else {
+    } else {
       setSalesVolumeChartData(null)
     }
     setSalesVolumeChartDataLoading(false)
@@ -154,7 +156,7 @@ const Home = () => {
     const response = await apiService.getChartData(`get-active-listing-7?city=${selectedLocation}`)
     if (response.success) {
       setActiveListingData(response.data)
-    }else {
+    } else {
       setActiveListingData(null)
     }
     setActiveListingDataLoading(false)
@@ -165,7 +167,7 @@ const Home = () => {
     const response = await apiService.getChartData(`weekly-pending-4?city=${selectedLocation}`)
     if (response.success) {
       setWeeklyPendingData(response.data)
-    }else {
+    } else {
       setWeeklyPendingData(null)
     }
     setWeeklyPendingDataLoading(false)
@@ -176,7 +178,7 @@ const Home = () => {
     const response = await apiService.getChartData(`weekly-price-reductions-5?city=${selectedLocation}`)
     if (response.success) {
       setWeeklyPriceReductionData(response.data)
-    }else {
+    } else {
       setWeeklyPriceReductionData(null)
     }
     setWeeklyPriceReductionDataLoading(false)
@@ -187,7 +189,7 @@ const Home = () => {
     const response = await apiService.getChartData(`sale-list-ratio-8?city=${selectedLocation}`)
     if (response.success) {
       setSalesListRatioData(response.data)
-    }else {
+    } else {
       setSalesListRatioData(null)
     }
     setSalesListRatioDataLoading(false)
@@ -198,7 +200,7 @@ const Home = () => {
     const response = await apiService.getChartData(`moi-6?city=${selectedLocation}`)
     if (response.success) {
       setMoiData(response.data)
-    }else {
+    } else {
       setMoiData(null)
     }
     setMoiDataLoading(false)
@@ -209,7 +211,7 @@ const Home = () => {
     const response = await apiService.getChartData(`price-sqft-9?city=${selectedLocation}`)
     if (response.success) {
       setPriceSQFTData(response.data)
-    }else {
+    } else {
       setPriceSQFTData(null)
     }
     setPriceSQFTDataLoading(false)
@@ -228,21 +230,30 @@ const Home = () => {
         vx={0.1}
         vy={0.1}
       />
-      
+
       {/* Navigation */}
       <Navbar />
 
       {/* Hero Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8 relative z-10">
+        {/* Back Button */}
+        <div className="mb-6">
+          <Button
+            onClick={() => navigate('/')}
+            variant="outline"
+            className="bg-white/70 backdrop-blur-md border border-gray-200/60 text-black hover:bg-black hover:text-white transition-all duration-300 font-light uppercase tracking-[0.1em]"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Home
+          </Button>
+        </div>
+
         <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-6xl font-bold text-slate-800 mb-6">
-            Housing Market
-            <span className="block bg-gradient-to-r from-black via-gray-700 to-gray-500 bg-clip-text text-transparent">
-              Visualization
-            </span>
+          <h2 className="text-4xl md:text-6xl font-light uppercase tracking-[0.2em] text-black mb-6">
+            Houston Luxury Market Visualization
           </h2>
-          <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
-            Explore the housing market with interactive charts and data visualizations
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light tracking-[0.05em] leading-relaxed">
+            Visualize market intelligence through refined, data-driven insights revealing pricing behavior, absorption trends, and long-range performance.
           </p>
         </div>
 
@@ -269,7 +280,7 @@ const Home = () => {
           <HistoricalTrend data={historicalTrendData} loading={historicalTrendDataLoading} />
           <MedianSalesChart data={medianSalesChartData} loading={medianSalesChartDataLoading} />
           <DomTrend data={domTrendData} loading={domTrendDataLoading} />
-          <SalesVolume data={salesVolumeChartData} loading={salesVolumeChartDataLoading} />   
+          <SalesVolume data={salesVolumeChartData} loading={salesVolumeChartDataLoading} />
           <ActiveListing data={activeListingData} loading={activeListingDataLoading} />
           <WeeklyPending data={weeklyPendingData} loading={weeklyPendingDataLoading} />
           <WeeklyPriceReduction data={weeklyPriceReductionData} loading={weeklyPriceReductionDataLoading} />

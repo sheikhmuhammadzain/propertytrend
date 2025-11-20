@@ -14,6 +14,8 @@ const Navbar: React.FC = () => {
   const [activeItem, setActiveItem] = useState<string>("")
   const [openLogin, setOpenLogin] = useState(false)
   const [openSignup, setOpenSignup] = useState(false)
+  const [loginMode, setLoginMode] = useState<'signin' | 'signup'>('signin')
+  const [signupMode, setSignupMode] = useState<'signin' | 'signup'>('signup')
   const { getToken, getStoredUser, logout } = useAuth()
 
   // Update active item based on current route
@@ -75,7 +77,7 @@ const Navbar: React.FC = () => {
           {/* Logo - Full width on mobile, left-aligned on desktop */}
           <div className="flex items-center mb-2 sm:mb-0 w-full sm:w-auto justify-center sm:justify-start">
           </div>
-          
+
           {/* Navigation Menu / CTA - Right-aligned on desktop */}
           <div className="flex items-center justify-center">
             {getToken() ? (
@@ -115,14 +117,34 @@ const Navbar: React.FC = () => {
                   </HoverCardContent>
                 </HoverCard>
 
-                <Dialog open={openLogin} onOpenChange={setOpenLogin}>
-                  <DialogContent className="bg-white/90 backdrop-blur-sm border border-white/20">
-                    <Auth mode="signin" />
+                <Dialog open={openLogin} onOpenChange={(open) => {
+                  setOpenLogin(open)
+                  if (open) setLoginMode('signin') // Reset to signin when opened
+                }}>
+                  <DialogContent className="bg-white/95 backdrop-blur-sm border border-white/20 rounded-xl max-w-sm w-[92vw] p-4 sm:p-5 max-h-[85vh] overflow-y-auto">
+                    <Auth
+                      mode={loginMode}
+                      variant="modal"
+                      onModeSwitch={(newMode) => setLoginMode(newMode)}
+                    />
+                    <p className="mt-3 text-center text-xs text-gray-600">
+                      Members receive exclusive access to detailed market charts, in-depth analytics, and expanded data insights.
+                    </p>
                   </DialogContent>
                 </Dialog>
-                <Dialog open={openSignup} onOpenChange={setOpenSignup}>
-                  <DialogContent className="bg-white/90 backdrop-blur-sm border border-white/20">
-                    <Auth mode="signup" />
+                <Dialog open={openSignup} onOpenChange={(open) => {
+                  setOpenSignup(open)
+                  if (open) setSignupMode('signup') // Reset to signup when opened
+                }}>
+                  <DialogContent className="bg-white/95 backdrop-blur-sm border border-white/20 rounded-xl max-w-sm w-[92vw] p-4 sm:p-5 max-h-[85vh] overflow-y-auto">
+                    <Auth
+                      mode={signupMode}
+                      variant="modal"
+                      onModeSwitch={(newMode) => setSignupMode(newMode)}
+                    />
+                    <p className="mt-3 text-center text-xs text-gray-600">
+                      Members receive exclusive access to detailed market charts, in-depth analytics, and expanded data insights.
+                    </p>
                   </DialogContent>
                 </Dialog>
               </>
