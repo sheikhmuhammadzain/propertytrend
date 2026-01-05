@@ -72,19 +72,59 @@ const Home = () => {
   }, [navigate])
 
   useEffect(() => {
-    getAllLocationsHandler()
-    getBeroMetricDataHandler();
-    getHistoricalTrendDataHandler();
-    getMedianSalesDataHandler();
-    getDomTrendDataHandler();
-    getSalesVolumeDataHandler();
-    getActiveListingDataHandler();
-    getWeeklyPendingDataHandler();
-    getWeeklyPriceReductionDataHandler();
-    getSalesListRatioDataHandler();
-    getMoiDataHandler();
-    getPriceSQFTDataHandler();
+    getAllLocationsHandler();
+  }, []);
+
+  useEffect(() => {
+    fetchAllChartData();
   }, [selectedLocation]);
+
+  const fetchAllChartData = async () => {
+    // Set all loading states to true
+    setBeroMetricDataLoading(true);
+    setHistoricalTrendDataLoading(true);
+    setMedianSalesChartDataLoading(true);
+    setDomTrendDataLoading(true);
+    setSalesVolumeChartDataLoading(true);
+    setActiveListingDataLoading(true);
+    setWeeklyPendingDataLoading(true);
+    setWeeklyPriceReductionDataLoading(true);
+    setSalesListRatioDataLoading(true);
+    setMoiDataLoading(true);
+    setPriceSQFTDataLoading(true);
+
+    const endpoints = [
+      { key: 'bero', url: `GET-Barometer?city=${selectedLocation}`, setter: setBeroMetricData, loader: setBeroMetricDataLoading },
+      { key: 'history', url: `historical-trend-11?city=${selectedLocation}`, setter: setHistoricalTrendData, loader: setHistoricalTrendDataLoading },
+      { key: 'median', url: `median-sales-1?city=${selectedLocation}`, setter: setMedianSalesChartData, loader: setMedianSalesChartDataLoading },
+      { key: 'dom', url: `dom-trend-2?city=${selectedLocation}`, setter: setDomTrendData, loader: setDomTrendDataLoading },
+      { key: 'volume', url: `sales-volume-3?city=${selectedLocation}`, setter: setSalesVolumeChartData, loader: setSalesVolumeChartDataLoading },
+      { key: 'active', url: `get-active-listing-7?city=${selectedLocation}`, setter: setActiveListingData, loader: setActiveListingDataLoading },
+      { key: 'pending', url: `weekly-pending-4?city=${selectedLocation}`, setter: setWeeklyPendingData, loader: setWeeklyPendingDataLoading },
+      { key: 'reduction', url: `weekly-price-reductions-5?city=${selectedLocation}`, setter: setWeeklyPriceReductionData, loader: setWeeklyPriceReductionDataLoading },
+      { key: 'ratio', url: `sale-list-ratio-8?city=${selectedLocation}`, setter: setSalesListRatioData, loader: setSalesListRatioDataLoading },
+      { key: 'moi', url: `moi-6?city=${selectedLocation}`, setter: setMoiData, loader: setMoiDataLoading },
+      { key: 'priceSqft', url: `price-sqft-9?city=${selectedLocation}`, setter: setPriceSQFTData, loader: setPriceSQFTDataLoading }
+    ];
+
+    await Promise.allSettled(
+      endpoints.map(async ({ url, setter, loader }) => {
+        try {
+          const response = await apiService.getChartData(url);
+          if (response.success) {
+            setter(response.data);
+          } else {
+            setter(null);
+          }
+        } catch (error) {
+          console.error(`Error fetching data for ${url}:`, error);
+          setter(null);
+        } finally {
+          loader(false);
+        }
+      })
+    );
+  };
 
 
   const getAllLocationsHandler = async () => {
@@ -94,128 +134,7 @@ const Home = () => {
     }
   }
 
-  const getBeroMetricDataHandler = async () => {
-    setBeroMetricDataLoading(true)
-    const response = await apiService.getChartData(`GET-Barometer?city=${selectedLocation}`)
-    if (response.success) {
-      setBeroMetricData(response.data)
-    } else {
-      setBeroMetricData(null)
-    }
-    setBeroMetricDataLoading(false)
-  }
 
-
-  const getHistoricalTrendDataHandler = async () => {
-    setHistoricalTrendDataLoading(true)
-    const response = await apiService.getChartData(`historical-trend-11?city=${selectedLocation}`)
-    if (response.success) {
-      setHistoricalTrendData(response.data)
-    } else {
-      setHistoricalTrendData(null)
-    }
-    setHistoricalTrendDataLoading(false)
-  }
-
-  const getMedianSalesDataHandler = async () => {
-    setMedianSalesChartDataLoading(true)
-    const response = await apiService.getChartData(`median-sales-1?city=${selectedLocation}`)
-    if (response.success) {
-      setMedianSalesChartData(response.data)
-    }
-    else {
-      setMedianSalesChartData(null)
-    }
-    setMedianSalesChartDataLoading(false)
-  }
-
-  const getDomTrendDataHandler = async () => {
-    setDomTrendDataLoading(true)
-    const response = await apiService.getChartData(`dom-trend-2?city=${selectedLocation}`)
-    if (response.success) {
-      setDomTrendData(response.data)
-    } else {
-      setDomTrendData(null)
-    }
-    setDomTrendDataLoading(false)
-  }
-
-  const getSalesVolumeDataHandler = async () => {
-    setSalesVolumeChartDataLoading(true)
-    const response = await apiService.getChartData(`sales-volume-3?city=${selectedLocation}`)
-    if (response.success) {
-      setSalesVolumeChartData(response.data)
-    } else {
-      setSalesVolumeChartData(null)
-    }
-    setSalesVolumeChartDataLoading(false)
-  }
-
-  const getActiveListingDataHandler = async () => {
-    setActiveListingDataLoading(true)
-    const response = await apiService.getChartData(`get-active-listing-7?city=${selectedLocation}`)
-    if (response.success) {
-      setActiveListingData(response.data)
-    } else {
-      setActiveListingData(null)
-    }
-    setActiveListingDataLoading(false)
-  }
-
-  const getWeeklyPendingDataHandler = async () => {
-    setWeeklyPendingDataLoading(true)
-    const response = await apiService.getChartData(`weekly-pending-4?city=${selectedLocation}`)
-    if (response.success) {
-      setWeeklyPendingData(response.data)
-    } else {
-      setWeeklyPendingData(null)
-    }
-    setWeeklyPendingDataLoading(false)
-  }
-
-  const getWeeklyPriceReductionDataHandler = async () => {
-    setWeeklyPriceReductionDataLoading(true)
-    const response = await apiService.getChartData(`weekly-price-reductions-5?city=${selectedLocation}`)
-    if (response.success) {
-      setWeeklyPriceReductionData(response.data)
-    } else {
-      setWeeklyPriceReductionData(null)
-    }
-    setWeeklyPriceReductionDataLoading(false)
-  }
-
-  const getSalesListRatioDataHandler = async () => {
-    setSalesListRatioDataLoading(true)
-    const response = await apiService.getChartData(`sale-list-ratio-8?city=${selectedLocation}`)
-    if (response.success) {
-      setSalesListRatioData(response.data)
-    } else {
-      setSalesListRatioData(null)
-    }
-    setSalesListRatioDataLoading(false)
-  }
-
-  const getMoiDataHandler = async () => {
-    setMoiDataLoading(true)
-    const response = await apiService.getChartData(`moi-6?city=${selectedLocation}`)
-    if (response.success) {
-      setMoiData(response.data)
-    } else {
-      setMoiData(null)
-    }
-    setMoiDataLoading(false)
-  }
-
-  const getPriceSQFTDataHandler = async () => {
-    setPriceSQFTDataLoading(true)
-    const response = await apiService.getChartData(`price-sqft-9?city=${selectedLocation}`)
-    if (response.success) {
-      setPriceSQFTData(response.data)
-    } else {
-      setPriceSQFTData(null)
-    }
-    setPriceSQFTDataLoading(false)
-  }
 
   return (
     <div className="min-h-screen relative bg-[#F2F1EF]">

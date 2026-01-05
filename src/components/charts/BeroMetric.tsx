@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 
@@ -72,13 +72,6 @@ const BeroMetric: React.FC<BeroMetricProps> = ({ data, loading }) => {
             </div>
           </div>
 
-          {/* Loading Indicator */}
-          <div className="absolute inset-0 flex items-center justify-center bg-white/20 backdrop-blur-sm rounded-lg">
-            <div className="flex flex-col items-center space-y-3">
-              <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
-              <p className="text-sm text-slate-600 font-medium">Loading market data...</p>
-            </div>
-          </div>
         </div>
       </div>
     );
@@ -156,13 +149,13 @@ const BeroMetric: React.FC<BeroMetricProps> = ({ data, loading }) => {
                     Index
                   </text>
                 </svg>
-                
+
                 {/* Market health indicator */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className={`w-3 h-3 rounded-full ${marketHealth.color} shadow-lg`}></div>
                 </div>
               </div>
-              
+
               {/* Gauge labels */}
               <div className="flex justify-between w-full text-xs text-slate-500">
                 <span>Cold</span>

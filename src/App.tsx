@@ -15,25 +15,25 @@ import Chatbot from "@/components/ui/Chatbot";
 import Users from "./pages/Users";
 
 const App = () => (
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/charts" element={<Charts />} />
-            <Route path="/methodology" element={<Methodology />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/login" element={<SignIn />} />
-            <Route path="/activate" element={<Verify />} />
-            <Route path="*" element={<NotFound />} />
-            <Route path="/users" element={<Users />} />
-          </Routes>
-          <Chatbot />
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
+  <AuthProvider>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/charts" element={<Charts />} />
+          <Route path="/methodology" element={<Methodology />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/login" element={<SignIn />} />
+          <Route path="/activate" element={<Verify />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <Chatbot />
+      </BrowserRouter>
+    </TooltipProvider>
+  </AuthProvider>
 );
 
 export default App;

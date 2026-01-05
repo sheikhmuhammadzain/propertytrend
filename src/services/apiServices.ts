@@ -45,11 +45,20 @@ export class ApiService {
     );
   }
 
-  async getTableData(city: string, year: string, month: string): Promise<ApiResponse<any>> {
-    return await this.callApi<any>(
-      'GET',
-      `get-tables?city=${city}&year=${year}&month=${month}`
-    );
+  async getTableData(
+    city: string, 
+    year: string, 
+    month?: string, 
+    quarter?: string, 
+    period_type: string = 'monthly'
+  ): Promise<ApiResponse<any>> {
+    let url = `get-tables-new_updated?city=${city}&year=${year}&period_type=${period_type}`;
+    if (period_type === 'monthly' && month) {
+      url += `&month=${month}`;
+    } else if (period_type === 'quarterly' && quarter) {
+      url += `&quarter=${quarter}`;
+    }
+    return await this.callApi<any>('GET', url);
   }
 
   async chatResponse(query: string): Promise<ApiResponse<any>> {

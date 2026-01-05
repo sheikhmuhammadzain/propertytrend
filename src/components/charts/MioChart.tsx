@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   LineChart,
   Line,
@@ -11,6 +11,7 @@ import {
   Area,
 } from 'recharts';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { SkeletonChart } from '../ui/SkeletonChart';
 
 interface MioChartProps {
   data: any,
@@ -22,7 +23,7 @@ const MioChart: React.FC<MioChartProps> = ({ data, loading }) => {
   const [years, setYears] = useState<string[]>([]);
   const [selectedYear, setSelectedYear] = useState<string>('all');
 
-  
+
 
   useEffect(() => {
     if (!data || !data.data) return;
@@ -42,11 +43,11 @@ const MioChart: React.FC<MioChartProps> = ({ data, loading }) => {
     // Transform data for charting
     Object.entries(data.data).forEach(([month, yearData]: [string, any]) => {
       const dataPoint: any = { month: month };
-      
+
       sortedYears.forEach(year => {
         dataPoint[year] = yearData[year] || 0;
       });
-      
+
       processedData.push(dataPoint);
     });
 
@@ -58,12 +59,12 @@ const MioChart: React.FC<MioChartProps> = ({ data, loading }) => {
   }, [data]);
 
   // Filter data by selected year
-  const filteredData = selectedYear === 'all' 
-    ? mioData 
+  const filteredData = selectedYear === 'all'
+    ? mioData
     : mioData.map(item => ({
-        month: item.month,
-        [selectedYear]: item[selectedYear] || 0
-      }));
+      month: item.month,
+      [selectedYear]: item[selectedYear] || 0
+    }));
 
   // Get years to display in chart based on selection
   const displayYears = selectedYear === 'all' ? years : [selectedYear];
@@ -95,34 +96,30 @@ const MioChart: React.FC<MioChartProps> = ({ data, loading }) => {
 
       <ResponsiveContainer width="100%" height={350}>
         {loading ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="flex flex-col items-center space-y-4">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            </div>
-          </div>
+          <SkeletonChart />
         ) : filteredData && filteredData.length > 0 ? (
           <LineChart data={filteredData} margin={{ top: 20, right: 40, left: 20, bottom: 20 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-            <XAxis 
-              dataKey="month" 
+            <XAxis
+              dataKey="month"
               stroke="#64748b"
               angle={-45}
               textAnchor="end"
               height={80}
             />
-            <YAxis 
+            <YAxis
               stroke="#06b6d4"
-              label={{ 
-                value: 'MIO Index', 
-                angle: -90, 
+              label={{
+                value: 'MIO Index',
+                angle: -90,
                 position: 'insideLeft',
                 style: { textAnchor: 'middle', fill: '#06b6d4' }
               }}
             />
-            <Tooltip 
-              contentStyle={{ 
-                background: 'rgba(255, 255, 255, 0.95)', 
-                border: 'none', 
+            <Tooltip
+              contentStyle={{
+                background: 'rgba(255, 255, 255, 0.95)',
+                border: 'none',
                 borderRadius: '8px',
                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
               }}

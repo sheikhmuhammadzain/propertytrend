@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { formatCompactNumber } from '@/lib/utils';
 import {
   LineChart,
   Line,
@@ -10,6 +11,7 @@ import {
   Legend,
 } from 'recharts';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { SkeletonChart } from '../ui/SkeletonChart';
 
 interface SalesVolumeProps {
   data: {
@@ -39,8 +41,8 @@ const SalesVolume: React.FC<SalesVolumeProps> = ({ data, loading }) => {
     setYears(uniqueYears);
 
     // Filter data by selected year
-    const filteredData = selectedYear === 'all' 
-      ? data 
+    const filteredData = selectedYear === 'all'
+      ? data
       : data.filter(item => item.year.toString() === selectedYear);
 
     const groupedData: { [key: string]: any } = {};
@@ -90,16 +92,12 @@ const SalesVolume: React.FC<SalesVolumeProps> = ({ data, loading }) => {
       </div>
       <ResponsiveContainer width="100%" height={300}>
         {loading ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="flex flex-col items-center space-y-4">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            </div>
-          </div>
+          <SkeletonChart />
         ) : chartData && chartData.length > 0 ? (
           <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis dataKey="month" stroke="#64748b" />
-            <YAxis stroke="#64748b" />
+            <YAxis stroke="#64748b" tickFormatter={(value) => formatCompactNumber(value)} />
             <Tooltip
               contentStyle={{
                 background: 'rgba(255, 255, 255, 0.95)',

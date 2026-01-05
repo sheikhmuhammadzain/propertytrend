@@ -95,7 +95,8 @@ const Navbar: React.FC = () => {
                       variant="outline"
                       className="bg-white/70 backdrop-blur-md border border-gray-200/60 text-[#3A3B40] font-light uppercase tracking-[0.2em] px-4 py-2 rounded-lg"
                     >
-                      Complimentary Membership
+                      <span className="hidden sm:inline">Complimentary Membership</span>
+                      <span className="sm:hidden">Join</span>
                     </Button>
                   </HoverCardTrigger>
                   <HoverCardContent align="end" className="bg-white/90 backdrop-blur-md border border-gray-200/60">

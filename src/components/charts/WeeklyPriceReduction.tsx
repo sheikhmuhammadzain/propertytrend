@@ -1,6 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Badge } from '../ui/badge';
+import { SkeletonChart } from '../ui/SkeletonChart';
 
 interface WeeklyPriceReductionProps {
     data: any,
@@ -31,7 +33,7 @@ const WeeklyPriceReduction: React.FC<WeeklyPriceReductionProps> = ({ data, loadi
         // Transform data for charting
         Object.keys(weekData).forEach(week => {
             const weekInfo = weekData[week];
-            const weekDataPoint: any = { week: `Week ${week}` };
+            const weekDataPoint: any = { week: `Week ${ week } ` };
             
             sortedYears.forEach(year => {
                 weekDataPoint[year] = weekInfo[year] || 0;
@@ -92,11 +94,7 @@ const WeeklyPriceReduction: React.FC<WeeklyPriceReductionProps> = ({ data, loadi
 
             <ResponsiveContainer width="100%" height={350}>
                 {loading ? (
-                    <div className="flex items-center justify-center h-full">
-                        <div className="flex flex-col items-center space-y-4">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                        </div>
-                    </div>
+                    <SkeletonChart />
                 ) : filteredData && filteredData.length > 0 ? (
                     <LineChart data={filteredData} margin={{ top: 20, right: 40, left: 20, bottom: 20 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -125,9 +123,9 @@ const WeeklyPriceReduction: React.FC<WeeklyPriceReductionProps> = ({ data, loadi
                             }}
                             formatter={(value: any, name: any) => [
                                 value.toLocaleString(), 
-                                name === 'week' ? 'Week' : `${name} Price Reductions`
+                                name === 'week' ? 'Week' : `${ name } Price Reductions`
                             ]}
-                            labelFormatter={(label) => `Week: ${label}`}
+                            labelFormatter={(label) => `Week: ${ label } `}
                         />
                         <Legend />
                         {selectedYear === 'all' 
@@ -140,7 +138,7 @@ const WeeklyPriceReduction: React.FC<WeeklyPriceReductionProps> = ({ data, loadi
                                     strokeWidth={2}
                                     dot={{ fill: getYearColor(year), strokeWidth: 2, r: 3 }}
                                     activeDot={{ r: 5, stroke: getYearColor(year), strokeWidth: 2 }}
-                                    name={`${year} Reductions`}
+                                    name={`${ year } Reductions`}
                                 />
                             ))
                             : (
@@ -151,7 +149,7 @@ const WeeklyPriceReduction: React.FC<WeeklyPriceReductionProps> = ({ data, loadi
                                     strokeWidth={3}
                                     dot={{ fill: getYearColor(selectedYear), strokeWidth: 2, r: 4 }}
                                     activeDot={{ r: 6, stroke: getYearColor(selectedYear), strokeWidth: 2 }}
-                                    name={`${selectedYear} Price Reductions`}
+                                    name={`${ selectedYear } Price Reductions`}
                                 />
                             )
                         }
@@ -215,7 +213,7 @@ const WeeklyPriceReduction: React.FC<WeeklyPriceReductionProps> = ({ data, loadi
                                         }
                                     }
                                 });
-                                return `${maxValue.toLocaleString()} (${maxWeek})`;
+                                return `${ maxValue.toLocaleString() } (${ maxWeek })`;
                             })()}
                         </div>
                     </div>

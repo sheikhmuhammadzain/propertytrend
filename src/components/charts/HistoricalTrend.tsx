@@ -1,7 +1,9 @@
-import React, {useState, useEffect} from 'react'
+import React, { useState, useEffect } from 'react'
+import { formatCompactNumber } from '@/lib/utils';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Button } from '../ui/button';
+import { SkeletonChart } from '../ui/SkeletonChart';
 
 interface HistoricalTrendProps {
   data: any
@@ -19,10 +21,10 @@ const HistoricalTrend: React.FC<HistoricalTrendProps> = ({ data, loading }) => {
     if (!data) return;
 
     const combinedData = [...(Array.isArray(data) ? data : [])];
-    
+
     const uniqueYears = [...new Set(combinedData.map(item => item.year))].sort();
     setYears(uniqueYears.map(year => year.toString()));
-    
+
     setHistoricalTrendData(combinedData);
   }, [data]);
 
@@ -50,36 +52,42 @@ const HistoricalTrend: React.FC<HistoricalTrendProps> = ({ data, loading }) => {
         label: 'Sales Volume',
         color: '#3b82f6',
         formatter: (value: number) => `${value.toLocaleString()} units`,
+        tickFormatter: (value: number) => formatCompactNumber(value),
         yAxisLabel: 'Sales Volume'
       },
       revenue: {
         label: 'Revenue',
         color: '#8b5cf6',
         formatter: (value: number) => `$${value.toLocaleString()}`,
+        tickFormatter: (value: number) => `$${formatCompactNumber(value)}`,
         yAxisLabel: 'Revenue ($)'
       },
       avg_price: {
         label: 'Average Price',
         color: '#10b981',
         formatter: (value: number) => `$${value.toLocaleString()}`,
+        tickFormatter: (value: number) => `$${formatCompactNumber(value)}`,
         yAxisLabel: 'Average Price ($)'
       },
       median_price: {
         label: 'Median Price',
         color: '#f59e0b',
         formatter: (value: number) => `$${value.toLocaleString()}`,
+        tickFormatter: (value: number) => `$${formatCompactNumber(value)}`,
         yAxisLabel: 'Median Price ($)'
       },
       avg_ppsf: {
         label: 'Avg Price per Sq Ft',
         color: '#ef4444',
         formatter: (value: number) => `$${value}`,
+        tickFormatter: (value: number) => `$${value}`,
         yAxisLabel: 'Price per Sq Ft ($)'
       },
       avg_dom: {
         label: 'Avg Days on Market',
         color: '#8b5cf6',
         formatter: (value: number) => `${value} days`,
+        tickFormatter: (value: number) => `${value}`,
         yAxisLabel: 'Days on Market'
       }
     };
@@ -112,7 +120,7 @@ const HistoricalTrend: React.FC<HistoricalTrendProps> = ({ data, loading }) => {
               </SelectContent>
             </Select>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <label className="text-sm text-slate-600">Metric:</label>
             <Select value={selectedMetric} onValueChange={setSelectedMetric}>
@@ -153,44 +161,41 @@ const HistoricalTrend: React.FC<HistoricalTrendProps> = ({ data, loading }) => {
 
       <ResponsiveContainer width="100%" height={350}>
         {loading ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="flex flex-col items-center space-y-4">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            </div>
-          </div>
+          <SkeletonChart />
         ) : chartData && chartData.length > 0 ? (
           chartType === 'bar' ? (
             <BarChart data={chartData} margin={{ top: 20, right: 40, left: 80, bottom: 20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis 
-                dataKey="month" 
+              <XAxis
+                dataKey="month"
                 stroke="#64748b"
                 angle={-45}
                 textAnchor="end"
                 height={80}
               />
-              <YAxis 
+              <YAxis
                 stroke="#64748b"
-                label={{ 
-                  value: metricConfig.yAxisLabel, 
-                  angle: -90, 
+                tickFormatter={metricConfig.tickFormatter}
+                label={{
+                  value: metricConfig.yAxisLabel,
+                  angle: -90,
                   position: 'insideLeft',
                   style: { textAnchor: 'middle' }
                 }}
               />
-              <Tooltip 
-                contentStyle={{ 
-                  background: 'rgba(255, 255, 255, 0.95)', 
-                  border: 'none', 
+              <Tooltip
+                contentStyle={{
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  border: 'none',
                   borderRadius: '8px',
                   boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                 }}
                 formatter={(value: any) => [metricConfig.formatter(value), metricConfig.label]}
                 labelFormatter={(label) => `Month: ${label}`}
               />
-              <Bar 
-                dataKey={selectedMetric} 
-                fill={metricConfig.color} 
+              <Bar
+                dataKey={selectedMetric}
+                fill={metricConfig.color}
                 radius={[4, 4, 0, 0]}
                 name={metricConfig.label}
               />
@@ -198,35 +203,36 @@ const HistoricalTrend: React.FC<HistoricalTrendProps> = ({ data, loading }) => {
           ) : (
             <LineChart data={chartData} margin={{ top: 20, right: 40, left: 80, bottom: 20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis 
-                dataKey="month" 
+              <XAxis
+                dataKey="month"
                 stroke="#64748b"
                 angle={-45}
                 textAnchor="end"
                 height={80}
               />
-              <YAxis 
+              <YAxis
                 stroke="#64748b"
-                label={{ 
-                  value: metricConfig.yAxisLabel, 
-                  angle: -90, 
+                tickFormatter={metricConfig.tickFormatter}
+                label={{
+                  value: metricConfig.yAxisLabel,
+                  angle: -90,
                   position: 'insideLeft',
                   style: { textAnchor: 'middle' }
                 }}
               />
-              <Tooltip 
-                contentStyle={{ 
-                  background: 'rgba(255, 255, 255, 0.95)', 
-                  border: 'none', 
+              <Tooltip
+                contentStyle={{
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  border: 'none',
                   borderRadius: '8px',
                   boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                 }}
                 formatter={(value: any) => [metricConfig.formatter(value), metricConfig.label]}
                 labelFormatter={(label) => `Month: ${label}`}
               />
-              <Line 
+              <Line
                 type="monotone"
-                dataKey={selectedMetric} 
+                dataKey={selectedMetric}
                 stroke={metricConfig.color}
                 strokeWidth={3}
                 dot={{ fill: metricConfig.color, strokeWidth: 2, r: 4 }}

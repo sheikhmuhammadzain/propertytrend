@@ -1,4 +1,4 @@
-import {useState, useEffect, useCallback} from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Navbar from "@/components/containers/Navbar";
 import SF from "@/components/Tables/SF";
 import Condo from "@/components/Tables/Condo";
@@ -13,8 +13,10 @@ const Tables = () => {
   const [sfData, setSFData] = useState([])
   const [contraData, setContraData] = useState([])
   const [city, setCity] = useState("Houston")
-  const [year, setYear] = useState(new Date().getFullYear().toString())
+  const [year, setYear] = useState("2026")
   const [month, setMonth] = useState((new Date().getMonth() + 1).toString())
+  const [quarter, setQuarter] = useState("1")
+  const [periodType, setPeriodType] = useState("monthly")
   const [loading, setLoading] = useState(true)
   const [allLocations, setAllLocations] = useState([])
 
@@ -36,19 +38,19 @@ const Tables = () => {
   const getDataTableHandler = useCallback(async () => {
     setLoading(true)
     try {
-      const response = await apiService.getTableData(city, year, month)
+      const response = await apiService.getTableData(city, year, month, quarter, periodType)
       console.log("API Response:", response)
-      
+
       if (response.success && response.data) {
         console.log("Raw response data:", response.data)
-        
+
         // Check if data has the expected structure
         if (response.data.sf && Array.isArray(response.data.sf)) {
           // Transform SF data to ensure it has the expected structure
           const transformedSFData = response.data.sf.map((item: any) => {
             // If the item already has pricerange, use it; otherwise use index
             const pricerange = item.pricerange || item.index || 'Unknown';
-            
+
             return {
               pricerange: pricerange,
               "Pending/ Signed Contract": item["Pending/ Signed Contract"] || 0,
@@ -92,7 +94,7 @@ const Tables = () => {
           console.warn("SF data not found or not an array:", response.data.sf)
           setSFData([])
         }
-        
+
         // Check if data has the expected structure
         if (response.data.condo && Array.isArray(response.data.condo)) {
           // Transform condo data to match expected component structure
@@ -126,8 +128,11 @@ const Tables = () => {
               } else if (priceRange.includes('–')) {
                 const match = priceRange.match(/(\d+)–(\d+)M/);
                 return match ? parseInt(match[1]) * 1000000 : 0;
+              } else {
+                // Handle traditional format like $100,000
+                const match = priceRange.match(/\$?([\d,]+)/);
+                return match ? parseInt(match[1].replace(/,/g, '')) : 0;
               }
-              return 0;
             };
             return getPriceValue(a.pricerange) - getPriceValue(b.pricerange);
           });
@@ -149,11 +154,11 @@ const Tables = () => {
     } finally {
       setLoading(false)
     }
-  }, [city, year, month])
+  }, [city, year, month, quarter, periodType])
 
   useEffect(() => {
     getAllLocationsHandler()
-  },[])
+  }, [])
 
   useEffect(() => {
     getDataTableHandler()
@@ -283,6 +288,21 @@ const Tables = () => {
               </Select>
             </div>
 
+            {/* Period Type Selection */}
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-[#000000]">Period Type</label>
+              <Select value={periodType} onValueChange={setPeriodType}>
+                <SelectTrigger className="shadow-lg">
+                  <SelectValue placeholder="Select period type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                  <SelectItem value="quarterly">Quarterly</SelectItem>
+                  <SelectItem value="annual">Annual</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Year Selection */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[#000000]">Year</label>
@@ -291,39 +311,57 @@ const Tables = () => {
                   <SelectValue placeholder="Select year" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="2020">2020</SelectItem>
-                  <SelectItem value="2021">2021</SelectItem>
-                  <SelectItem value="2022">2022</SelectItem>
-                  <SelectItem value="2023">2023</SelectItem>
-                  <SelectItem value="2024">2024</SelectItem>
-                  <SelectItem value="2025">2025</SelectItem>
+                  {Array.from({ length: 8 }, (_, i) => 2020 + i).map((y) => (
+                    <SelectItem key={y} value={y.toString()}>
+                      {y}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Month Selection */}
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-[#000000]">Month</label>
-              <Select value={month} onValueChange={setMonth}>
-                <SelectTrigger className="shadow-lg">
-                  <SelectValue placeholder="Select month" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">January</SelectItem>
-                  <SelectItem value="2">February</SelectItem>
-                  <SelectItem value="3">March</SelectItem>
-                  <SelectItem value="4">April</SelectItem>
-                  <SelectItem value="5">May</SelectItem>
-                  <SelectItem value="6">June</SelectItem>
-                  <SelectItem value="7">July</SelectItem>
-                  <SelectItem value="8">August</SelectItem>
-                  <SelectItem value="9">September</SelectItem>
-                  <SelectItem value="10">October</SelectItem>
-                  <SelectItem value="11">November</SelectItem>
-                  <SelectItem value="12">December</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Monthly/Quarterly Detail Selection */}
+            {periodType === 'monthly' && (
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-[#000000]">Month</label>
+                <Select value={month} onValueChange={setMonth}>
+                  <SelectTrigger className="shadow-lg">
+                    <SelectValue placeholder="Select month" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">January</SelectItem>
+                    <SelectItem value="2">February</SelectItem>
+                    <SelectItem value="3">March</SelectItem>
+                    <SelectItem value="4">April</SelectItem>
+                    <SelectItem value="5">May</SelectItem>
+                    <SelectItem value="6">June</SelectItem>
+                    <SelectItem value="7">July</SelectItem>
+                    <SelectItem value="8">August</SelectItem>
+                    <SelectItem value="9">September</SelectItem>
+                    <SelectItem value="10">October</SelectItem>
+                    <SelectItem value="11">November</SelectItem>
+                    <SelectItem value="12">December</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {periodType === 'quarterly' && (
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-[#000000]">Quarter</label>
+                <Select value={quarter} onValueChange={setQuarter}>
+                  <SelectTrigger className="shadow-lg">
+                    <SelectValue placeholder="Select quarter" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">Q1 (Jan-Mar)</SelectItem>
+                    <SelectItem value="2">Q2 (Apr-Jun)</SelectItem>
+                    <SelectItem value="3">Q3 (Jul-Sep)</SelectItem>
+                    <SelectItem value="4">Q4 (Oct-Dec)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
         </div>
 
@@ -331,10 +369,10 @@ const Tables = () => {
         <Condo data={contraData} loading={loading} city={city} />
 
         <div>
-          <p className='text-[#3A3B40] text-[12px] font-normal uppercase'>*Market Area Information obtained from Houston Association of Realtors (HAR). Statistics are subject to change due to individual real estate company reporting disciplines. 2800 KIRBY DRIVE, SUITE A-206, HOUSTON, TEXAS 77098. 281.652.5588. © 2025 DOUGLAS ELLIMAN REAL ESTATE. ALL MATERIAL PRESENTED HEREIN IS INTENDED FOR INFORMATION PURPOSES ONLY. WHILE THIS INFORMATION IS BELIEVED TO BE CORRECT; IT IS REPRESENTED SUBJECT TO ERRORS, OMISSION, CHANGES, OR WITHDRAWAL WITHOUT NOTICE. ALL PROPERTY INFORMATION, INCLUDING, BUT NOT LIMITED TO SQUARE FOOTAGE, ROOM COUNT, NUMBER OF BEDROOMS AND THE SCHOOL DISTRICT IN PROPERTY LISTINGS ARE DEEMED RELIABLE, BUT SHOULD BE VERIFIED BY THE SALES ASSOCIATE'S OWN ATTORNEY, ARCHITECT OR ZONING EXPERT. EQUAL HOUSING OPPORTUNITY. <img src={Home_Des_Icon} alt="Home_Des_Icon" className="inline ml-1"/></p>
+          <p className='text-[#3A3B40] text-[12px] font-normal uppercase'>*Market Area Information obtained from Houston Association of Realtors (HAR). Statistics are subject to change due to individual real estate company reporting disciplines. 2800 KIRBY DRIVE, SUITE A-206, HOUSTON, TEXAS 77098. 281.652.5588. © 2025 DOUGLAS ELLIMAN REAL ESTATE. ALL MATERIAL PRESENTED HEREIN IS INTENDED FOR INFORMATION PURPOSES ONLY. WHILE THIS INFORMATION IS BELIEVED TO BE CORRECT; IT IS REPRESENTED SUBJECT TO ERRORS, OMISSION, CHANGES, OR WITHDRAWAL WITHOUT NOTICE. ALL PROPERTY INFORMATION, INCLUDING, BUT NOT LIMITED TO SQUARE FOOTAGE, ROOM COUNT, NUMBER OF BEDROOMS AND THE SCHOOL DISTRICT IN PROPERTY LISTINGS ARE DEEMED RELIABLE, BUT SHOULD BE VERIFIED BY THE SALES ASSOCIATE'S OWN ATTORNEY, ARCHITECT OR ZONING EXPERT. EQUAL HOUSING OPPORTUNITY. <img src={Home_Des_Icon} alt="Home_Des_Icon" className="inline ml-1" /></p>
         </div>
       </div>
-      
+
       <Footer />
     </div>
   );
