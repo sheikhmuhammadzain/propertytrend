@@ -3,7 +3,12 @@ import { MenuBar } from '../ui/glow-menu'
 import { BarChart3, LogOut, Users } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/context'
-import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/components/ui/hover-card'
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@/components/ui/dropdown-menu'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import Auth from '@/components/auth/Auth'
@@ -89,8 +94,8 @@ const Navbar: React.FC = () => {
               />
             ) : (
               <>
-                <HoverCard>
-                  <HoverCardTrigger asChild>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
                       className="bg-white/70 backdrop-blur-md border border-gray-200/60 text-[#3A3B40] font-light uppercase tracking-[0.2em] px-4 py-2 rounded-lg"
@@ -98,25 +103,29 @@ const Navbar: React.FC = () => {
                       <span className="hidden sm:inline">Complimentary Membership</span>
                       <span className="sm:hidden">Join</span>
                     </Button>
-                  </HoverCardTrigger>
-                  <HoverCardContent align="end" className="bg-white/90 backdrop-blur-md border border-gray-200/60">
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="bg-white/90 backdrop-blur-md border border-gray-200/60 p-2">
                     <div className="flex flex-col gap-2">
-                      <Button
-                        variant="outline"
-                        onClick={() => setOpenLogin(true)}
-                        className="justify-start font-light uppercase tracking-[0.2em]"
-                      >
-                        Log in
-                      </Button>
-                      <Button
-                        onClick={() => setOpenSignup(true)}
-                        className="justify-start font-light uppercase tracking-[0.2em]"
-                      >
-                        Create account
-                      </Button>
+                      <DropdownMenuItem asChild>
+                        <Button
+                          variant="outline"
+                          onClick={() => setOpenLogin(true)}
+                          className="w-full justify-start font-light uppercase tracking-[0.2em]"
+                        >
+                          Log in
+                        </Button>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Button
+                          onClick={() => setOpenSignup(true)}
+                          className="w-full justify-start font-light uppercase tracking-[0.2em]"
+                        >
+                          Create account
+                        </Button>
+                      </DropdownMenuItem>
                     </div>
-                  </HoverCardContent>
-                </HoverCard>
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
                 <Dialog open={openLogin} onOpenChange={(open) => {
                   setOpenLogin(open)

@@ -83,28 +83,28 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen: controlledIsOpen, onToggle })
     setMessages(prev => [...prev, userMessage]);
     setInputText('');
     setIsTyping(true);
-    
+
     try {
       const response = await apiService.chatResponse(messageToSend);
-      
+
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
         text: response.data.answer || "I'm sorry, I couldn't process your request at the moment. Please try again.",
         isUser: false,
         timestamp: new Date(),
       };
-      
+
       setMessages(prev => [...prev, botResponse]);
     } catch (error) {
       console.error('Chat API error:', error);
-      
+
       const errorResponse: Message = {
         id: (Date.now() + 1).toString(),
         text: "I'm sorry, I'm having trouble connecting right now. Please try again in a moment.",
         isUser: false,
         timestamp: new Date(),
       };
-      
+
       setMessages(prev => [...prev, errorResponse]);
     } finally {
       setIsTyping(false);
@@ -140,22 +140,18 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen: controlledIsOpen, onToggle })
             console.log('Chat button clicked!');
             toggleChat();
           }}
-          className="h-14 w-14 rounded-full bg-gradient-to-r from-black via-gray-800 to-gray-600 hover:from-gray-900 hover:via-gray-700 hover:to-gray-500 shadow-2xl hover:shadow-gray-500/25 transition-all duration-300 transform hover:scale-110 border-2 border-white/20 cursor-pointer"
+          className="h-12 w-12 rounded-full bg-gradient-to-r from-black via-gray-800 to-gray-600 hover:from-gray-900 hover:via-gray-700 hover:to-gray-500 shadow-lg transition-all duration-300 border border-white/10 cursor-pointer"
         >
-          <MessageCircle className="h-6 w-6 text-white" />
+          <MessageCircle className="h-5 w-5 text-white" />
         </Button>
-        
-        {/* Pulse effect */}
-        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-black via-gray-800 to-gray-600 animate-ping opacity-20 pointer-events-none"></div>
       </div>
     );
   }
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      <Card className={`transition-all duration-500 ease-in-out transform ${
-        isMinimized ? 'w-80 h-16' : 'w-96 h-[600px]'
-      } bg-white/90 backdrop-blur-xl border border-white/20 shadow-2xl hover:shadow-purple-500/10`}>
+      <Card className={`transition-all duration-500 ease-in-out transform ${isMinimized ? 'w-80 h-16' : 'w-96 h-[600px]'
+        } bg-white/90 backdrop-blur-xl border border-white/20 shadow-2xl hover:shadow-purple-500/10`}>
         {/* Header */}
         <div className="flex items-center justify-between p-4 bg-gradient-to-r from-black via-gray-800 to-gray-600 text-white rounded-t-lg">
           <div className="flex items-center space-x-3">
@@ -168,7 +164,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen: controlledIsOpen, onToggle })
               <p className="text-xs opacity-90">Always here to help</p>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <Button
               onClick={() => setIsMinimized(!isMinimized)}
@@ -200,20 +196,18 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen: controlledIsOpen, onToggle })
                   className={`flex ${message.isUser ? 'justify-end' : 'justify-start'} animate-fade-in`}
                 >
                   <div className={`flex items-end space-x-2 max-w-[80%] ${message.isUser ? 'flex-row-reverse space-x-reverse' : ''}`}>
-                    <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                      message.isUser 
-                        ? 'bg-gradient-to-r from-gray-700 to-gray-900' 
+                    <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${message.isUser
+                        ? 'bg-gradient-to-r from-gray-700 to-gray-900'
                         : 'bg-gradient-to-r from-gray-600 to-gray-800'
-                    }`}>
+                      }`}>
                       {message.isUser ? <User className="h-4 w-4 text-white" /> : <Bot className="h-4 w-4 text-white" />}
                     </div>
-                    
-                    <div className={`p-3 rounded-2xl shadow-sm ${
-                      message.isUser
+
+                    <div className={`p-3 rounded-2xl shadow-sm ${message.isUser
                         ? 'bg-gradient-to-r from-gray-800 to-black text-white rounded-br-sm'
                         : 'bg-white/80 backdrop-blur-sm text-gray-800 rounded-bl-sm border border-gray-200/20'
-                    }`}>
-                      <div 
+                      }`}>
+                      <div
                         className="text-sm whitespace-pre-line"
                         dangerouslySetInnerHTML={{ __html: message.text }}
                       />
@@ -224,7 +218,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen: controlledIsOpen, onToggle })
                   </div>
                 </div>
               ))}
-              
+
               {isTyping && (
                 <div className="flex justify-start animate-fade-in">
                   <div className="bg-white/80 backdrop-blur-sm p-3 rounded-2xl rounded-bl-sm shadow-sm border border-gray-200/20">
@@ -232,7 +226,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen: controlledIsOpen, onToggle })
                   </div>
                 </div>
               )}
-              
+
               <div ref={messagesEndRef} />
             </div>
 
