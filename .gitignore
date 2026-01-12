@@ -65,11 +65,9 @@ jspm_packages/
 .yarn-integrity
 
 # dotenv environment variable files
-.env
 .env.development.local
 .env.test.local
 .env.production.local
-.env.local
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -150,7 +148,6 @@ build/
 out/
 
 # Local development
-.env.local
 .env.development.local
 .env.test.local
 .env.production.local
@@ -166,3 +163,4 @@ storybook-static
 # .vercel
 # .netlify
 # .firebase/ 
+config.bat
