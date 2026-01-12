@@ -84,7 +84,7 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Navigation Menu / CTA - Right-aligned on desktop */}
-          <div className="flex items-center justify-center">
+          <div className="flex items-center justify-end ml-auto">
             {getToken() ? (
               <MenuBar
                 items={menuItems}
@@ -98,10 +98,10 @@ const Navbar: React.FC = () => {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      className="bg-white/70 backdrop-blur-md border border-gray-200/60 text-[#3A3B40] font-light uppercase tracking-[0.2em] px-4 py-2 rounded-lg"
+                      className="bg-white/70 backdrop-blur-md border border-gray-200/60 text-[#3A3B40] font-light uppercase tracking-[0.15em] px-3 py-1.5 rounded-md text-xs sm:text-sm h-8 sm:h-9"
                     >
                       <span className="hidden sm:inline">Complimentary Membership</span>
-                      <span className="sm:hidden">Join</span>
+                      <span className="sm:hidden">Membership</span>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="bg-white/90 backdrop-blur-md border border-gray-200/60 p-2">
