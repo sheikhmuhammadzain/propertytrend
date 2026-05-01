@@ -88,6 +88,22 @@ export class ApiService {
     );
   }
 
+  async forgotPassword(email: string): Promise<ApiResponse<{ message: string }>> {
+    return await this.callApi<{ message: string }>(
+      'POST',
+      'auth/forgot-password',
+      { email }
+    );
+  }
+
+  async resetPassword(token: string, new_password: string): Promise<ApiResponse<{ message: string }>> {
+    return await this.callApi<{ message: string }>(
+      'POST',
+      'auth/reset-password',
+      { token, new_password }
+    );
+  }
+
   async activateAccount(token: any): Promise<ApiResponse<any>> {
     return await this.callApi<any>(
       'GET',

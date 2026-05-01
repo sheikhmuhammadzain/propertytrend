@@ -6,6 +6,7 @@ import { apiService } from '@/services/apiServices';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context';
 import { useNavigate } from 'react-router-dom';
+import ForgotPasswordDialog from '@/components/auth/ForgotPasswordDialog';
 
 
 interface AuthProps {
@@ -29,6 +30,7 @@ const Auth: React.FC<AuthProps> = ({ mode = 'signup', variant = 'page', onModeSw
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
   const { toast } = useToast();
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -261,6 +263,17 @@ const Auth: React.FC<AuthProps> = ({ mode = 'signup', variant = 'page', onModeSw
               {errors.password && (
                 <p className="text-red-500 text-sm mt-1">{errors.password}</p>
               )}
+              {!isSignup && (
+                <div className="text-right mt-2">
+                  <button
+                    type="button"
+                    onClick={() => setForgotOpen(true)}
+                    className="text-sm text-gray-700 hover:underline"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+              )}
             </div>
 
             {isSignup && (
@@ -363,6 +376,7 @@ const Auth: React.FC<AuthProps> = ({ mode = 'signup', variant = 'page', onModeSw
           )} */}
         </div>
       </div>
+      <ForgotPasswordDialog open={forgotOpen} onOpenChange={setForgotOpen} />
     </div>
   )
 }

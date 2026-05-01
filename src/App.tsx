@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import Verify from "./pages/Verify";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import Charts from "./pages/Charts";
 import Methodology from "./pages/Methodology";
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<SignIn />} />
           <Route path="/activate" element={<Verify />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/users" element={<Users />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
