@@ -195,7 +195,7 @@ const Home = () => {
 
         {/* Median Sales and Sales Volume Charts */}
         <div className="grid grid-cols-1 gap-8 my-8">
-          <BeroMetric data={beroMetricData} loading={beroMetricDataLoading} />
+          <BeroMetric data={beroMetricData} loading={beroMetricDataLoading} city={selectedLocation} />
           <HistoricalTrend data={historicalTrendData} loading={historicalTrendDataLoading} />
           <MedianSalesChart data={medianSalesChartData} loading={medianSalesChartDataLoading} />
           <DomTrend data={domTrendData} loading={domTrendDataLoading} />

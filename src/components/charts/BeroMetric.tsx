@@ -1,267 +1,353 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '../ui/select';
+import { apiService } from '@/services/apiServices';
+import { Building2, Plus, FileSignature, CheckCircle2, Info, Loader2 } from 'lucide-react';
 
 interface BeroMetricProps {
   data: any
   loading: boolean
+  city?: string
 }
 
-const BeroMetric: React.FC<BeroMetricProps> = ({ data, loading }) => {
-  const [marketData, setMarketData] = useState<any>(null);
+const PROPERTY_TYPE_OPTIONS = [
+  { value: 'all', label: 'All' },
+  { value: 'sfh', label: 'Single Family' },
+  { value: 'condo_hirise', label: 'Condo Hi Rise' },
+]
 
-  useEffect(() => {
-    if (!data) return;
-    setMarketData(data);
-  }, [data]);
+const currency = (v: any) => {
+  const n = Number(v)
+  if (!isFinite(n) || v == null) return '—'
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency', currency: 'USD', maximumFractionDigits: 0,
+  }).format(n)
+}
 
-  if (loading || !marketData) {
-    return (
-      <div className="lg:col-span-2 bg-white/70 backdrop-blur-sm border-white/20 rounded-lg p-6 hover:shadow-xl transition-all duration-300 relative">
-        <div className="animate-pulse">
-          {/* Header Skeleton */}
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
-            <div>
-              <div className="h-5 bg-slate-200 rounded w-40 mb-2"></div>
-              <div className="h-4 bg-slate-200 rounded w-56"></div>
-            </div>
-            <div className="h-6 bg-slate-200 rounded-full w-24"></div>
-          </div>
+const num = (v: any) => (v == null || isNaN(Number(v)) ? '—' : Number(v).toLocaleString())
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Gauge Chart Skeleton */}
-            <div className="lg:col-span-1">
-              <div className="border-0 shadow-lg bg-gradient-to-br from-slate-50 to-white rounded-lg p-6">
-                <div className="h-6 bg-slate-200 rounded w-32 mx-auto mb-4"></div>
-                <div className="flex flex-col items-center">
-                  <div className="w-48 h-48 bg-slate-200 rounded-full mb-4"></div>
-                  <div className="flex justify-between w-full">
-                    <div className="h-3 bg-slate-200 rounded w-8"></div>
-                    <div className="h-3 bg-slate-200 rounded w-12"></div>
-                    <div className="h-3 bg-slate-200 rounded w-6"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Key Metrics Skeleton */}
-            <div className="lg:col-span-2">
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                {[...Array(4)].map((_, index) => (
-                  <div key={index} className="border-0 shadow-md rounded-lg p-4 bg-gradient-to-br from-slate-50 to-slate-100">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="h-3 bg-slate-200 rounded w-20 mb-2"></div>
-                        <div className="h-6 bg-slate-200 rounded w-16"></div>
-                      </div>
-                      <div className="w-8 h-8 bg-slate-200 rounded-full"></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Market Analysis Skeleton */}
-              <div className="mt-6 p-4 bg-slate-50 rounded-lg">
-                <div className="h-4 bg-slate-200 rounded w-32 mb-3"></div>
-                <div className="space-y-2">
-                  {[...Array(6)].map((_, index) => (
-                    <div key={index} className="h-3 bg-slate-200 rounded w-full"></div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    );
+// Market-type -> badge styling. Seller = hot/red, Balanced = neutral, Buyer = cool/blue.
+const marketTypeStyle = (mt: string | null) => {
+  switch (mt) {
+    case "Seller's Market":
+      return { badge: 'bg-red-100 text-red-700 border-red-200', dot: 'bg-red-500' }
+    case 'Buyer\'s Market':
+      return { badge: 'bg-blue-100 text-blue-700 border-blue-200', dot: 'bg-blue-500' }
+    case 'Balanced Market':
+      return { badge: 'bg-slate-200 text-slate-700 border-slate-300', dot: 'bg-slate-500' }
+    default:
+      return { badge: 'bg-slate-100 text-slate-500 border-slate-200', dot: 'bg-slate-400' }
   }
+}
 
-  // Calculate market health based on barometer index
-  const getMarketHealth = (index: number) => {
-    if (index >= 0.8) return { status: 'Hot Market', color: 'bg-red-500', textColor: 'text-red-600', bgColor: 'bg-red-50' };
-    if (index >= 0.6) return { status: 'Strong Market', color: 'bg-orange-500', textColor: 'text-orange-600', bgColor: 'bg-orange-50' };
-    if (index >= 0.4) return { status: 'Balanced Market', color: 'bg-yellow-500', textColor: 'text-yellow-600', bgColor: 'bg-yellow-50' };
-    if (index >= 0.2) return { status: 'Buyer\'s Market', color: 'bg-blue-500', textColor: 'text-blue-600', bgColor: 'bg-blue-50' };
-    return { status: 'Cold Market', color: 'bg-purple-500', textColor: 'text-purple-600', bgColor: 'bg-purple-50' };
-  };
+const BeroMetric: React.FC<BeroMetricProps> = ({ data, loading, city }) => {
+  // Property-type filter: 'all' uses the parent-provided data; a specific type
+  // triggers a self-contained re-fetch with ?property_type=...
+  const [ptFilter, setPtFilter] = useState<string>('all')
+  const [localData, setLocalData] = useState<any>(null)
+  const [localLoading, setLocalLoading] = useState<boolean>(false)
+  const [ptError, setPtError] = useState<boolean>(false)
 
-  const marketHealth = getMarketHealth(marketData.BarometerIndex);
-  const percentage = Math.round(marketData.BarometerIndex * 100);
+  // Drill-down modal state
+  const [drill, setDrill] = useState<{ bucket: string; label: string } | null>(null)
+  const [drillData, setDrillData] = useState<any>(null)
+  const [drillLoading, setDrillLoading] = useState<boolean>(false)
 
-  // Calculate additional metrics
-  const daysOnMarket = Math.round(365 / (marketData.ClosedSales / 12)); // Estimated days on market
-  const monthsOfInventory = Math.round((marketData.ActiveListings / marketData.ClosedSales) * 12);
-  const absorptionRate = Math.round((marketData.ClosedSales / marketData.ActiveListings) * 100);
+  // Reset the filter whenever the parent supplies new data (e.g. city changed)
+  useEffect(() => {
+    setPtFilter('all')
+    setLocalData(null)
+    setPtError(false)
+  }, [data])
+
+  const handlePtChange = useCallback(async (value: string) => {
+    setPtFilter(value)
+    setPtError(false)
+    if (value === 'all') {
+      setLocalData(null)
+      return
+    }
+    if (!city) return
+    setLocalLoading(true)
+    try {
+      const res = await apiService.getChartData(
+        `GET-Barometer?city=${encodeURIComponent(city)}&property_type=${value}`,
+      )
+      if (res.success && res.data) {
+        setLocalData(res.data)
+      } else {
+        setLocalData(null)
+        setPtError(true)
+      }
+    } catch {
+      setLocalData(null)
+      setPtError(true)
+    } finally {
+      setLocalLoading(false)
+    }
+  }, [city])
+
+  const openDrill = useCallback(async (bucket: string, label: string) => {
+    if (!city) return
+    setDrill({ bucket, label })
+    setDrillData(null)
+    setDrillLoading(true)
+    try {
+      const ptParam = ptFilter !== 'all' ? `&property_type=${ptFilter}` : ''
+      const res = await apiService.getChartData(
+        `GET-Barometer-Transactions?city=${encodeURIComponent(city)}&bucket=${bucket}${ptParam}`,
+      )
+      setDrillData(res.success ? res.data : { transactions: [], count: 0 })
+    } catch {
+      setDrillData({ transactions: [], count: 0 })
+    } finally {
+      setDrillLoading(false)
+    }
+  }, [city, ptFilter])
+
+  const marketData = ptFilter === 'all' ? data : localData
+  const isLoading = loading || localLoading
+
+  // Property-type dropdown — rendered in the header in every state.
+  const PropertyTypeSelect = (
+    <Select value={ptFilter} onValueChange={handlePtChange} disabled={!city || isLoading}>
+      <SelectTrigger className="w-[170px] h-9 bg-white shadow-sm text-xs">
+        <SelectValue placeholder="Property type" />
+      </SelectTrigger>
+      <SelectContent>
+        {PROPERTY_TYPE_OPTIONS.map((o) => (
+          <SelectItem key={o.value} value={o.value} className="text-xs">{o.label}</SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  )
+
+  const mt = marketData?.MarketType ?? null
+  const mtStyle = marketTypeStyle(mt)
+
+  // MoS marker position on a 0–10 scale (zones: <4 seller, 4–7 balanced, ≥7 buyer)
+  const mos = marketData?.MonthsOfSupply
+  const markerPct = mos == null ? null : Math.max(0, Math.min(100, (Number(mos) / 10) * 100))
+
+  const windowRange = (w: any) => (w?.from && w?.to ? `Range: ${w.from} → ${w.to}` : 'Recent activity')
+
+  const counters = marketData ? [
+    {
+      key: 'active', bucket: 'active', label: 'Active Listings', value: marketData.ActiveListings,
+      icon: Building2, gradient: 'from-black via-gray-800 to-gray-600',
+      tip: `Point-in-time, as of ${marketData.as_of ?? 'today'}`,
+    },
+    {
+      key: 'new', bucket: 'new', label: 'New Listings', value: marketData.NewListings,
+      icon: Plus, gradient: 'from-gray-900 via-gray-700 to-black',
+      tip: windowRange(marketData.new_listings_window),
+    },
+    {
+      key: 'pending', bucket: 'pending', label: 'Pending Sales', value: marketData.PendingSales,
+      icon: FileSignature, gradient: 'from-black via-gray-600 to-gray-800',
+      tip: `Point-in-time, as of ${marketData.as_of ?? 'today'}`,
+    },
+    {
+      key: 'closed', bucket: 'closed', label: 'Closed Sales', value: marketData.ClosedSales,
+      icon: CheckCircle2, gradient: 'from-gray-800 via-black to-gray-700',
+      tip: windowRange(marketData.closed_sales_window),
+    },
+  ] : []
 
   return (
     <div className="lg:col-span-2 bg-white/70 backdrop-blur-sm border-white/20 rounded-lg p-6 hover:shadow-xl transition-all duration-300">
-      {/* Header */}
+      {/* Header (always rendered, includes property-type dropdown) */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
         <div>
           <h3 className="text-slate-800 text-lg font-semibold">Market Barometer</h3>
           <p className="text-slate-600 text-sm">Real estate market health indicators</p>
         </div>
-        <Badge className="bg-gradient-to-r from-black via-gray-700 to-gray-500 text-white border-0 shadow-lg">
-          {marketHealth.status}
-        </Badge>
+        <div className="flex items-center gap-3">
+          {mt && <Badge className={`border ${mtStyle.badge} shadow-sm`}>{mt}</Badge>}
+          {PropertyTypeSelect}
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Gauge Chart */}
-        <div className="lg:col-span-1">
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-slate-50 to-white">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-center text-slate-700">Market Index</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center">
-              {/* Gauge Visualization */}
-              <div className="relative w-48 h-48 mb-4">
-                {/* Gauge Background */}
-                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                  {/* Background circle */}
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="40"
-                    fill="none"
-                    stroke="#e2e8f0"
-                    strokeWidth="8"
-                  />
-                  {/* Progress circle */}
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="40"
-                    fill="none"
-                    stroke={marketHealth.color.replace('bg-', '#')}
-                    strokeWidth="8"
-                    strokeDasharray={`${2 * Math.PI * 40}`}
-                    strokeDashoffset={`${2 * Math.PI * 40 * (1 - marketData.BarometerIndex)}`}
-                    strokeLinecap="round"
-                    className="transition-all duration-1000 ease-out"
-                  />
-                  {/* Center text */}
-                  <text x="60" y="30" textAnchor="middle" className="text-2xl font-bold fill-slate-700" transform="rotate(90 50 40)">
-                    {percentage}%
-                  </text>
-                  <text x="40" y="80" textAnchor="middle" className="text-xs fill-slate-500" transform="rotate(90 50 62)">
-                    Index
-                  </text>
-                </svg>
-
-                {/* Market health indicator */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className={`w-3 h-3 rounded-full ${marketHealth.color} shadow-lg`}></div>
-                </div>
-              </div>
-
-              {/* Gauge labels */}
-              <div className="flex justify-between w-full text-xs text-slate-500">
-                <span>Cold</span>
-                <span>Balanced</span>
-                <span>Hot</span>
-              </div>
-            </CardContent>
-          </Card>
+      {/* Body */}
+      {isLoading ? (
+        <div className="animate-pulse grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-1 h-64 bg-slate-200 rounded-lg" />
+          <div className="lg:col-span-2 grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {[...Array(4)].map((_, i) => <div key={i} className="h-24 bg-slate-200 rounded-lg" />)}
+          </div>
         </div>
-
-        {/* Key Metrics */}
-        <div className="lg:col-span-2">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Active Listings */}
-            <Card className="border-0 shadow-xl bg-gradient-to-br from-black via-gray-800 to-gray-600 hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-gray-300 font-medium">Active Listings</p>
-                    <p className="text-2xl font-bold text-white">
-                      {marketData.ActiveListings.toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                  </div>
+      ) : !marketData ? (
+        <div className="py-16 text-center text-slate-500 text-sm">
+          {ptError
+            ? 'No data for this property type in this area.'
+            : 'No barometer data available for this area.'}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Months of Supply — primary headline */}
+          <div className="lg:col-span-1">
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-slate-50 to-white h-full">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-center text-slate-700 text-base flex items-center justify-center gap-1.5">
+                  Months of Supply
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-3.5 w-3.5 text-slate-400 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-[220px] text-xs">
+                        Active listings ÷ average monthly closings (trailing 12 months).
+                        {marketData.moi_window?.from && ` ${windowRange(marketData.moi_window)}`}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col items-center text-center">
+                <div className="text-5xl font-bold text-slate-800 leading-none mt-2">
+                  {mos == null ? '—' : Number(mos).toFixed(1)}
                 </div>
-              </CardContent>
-            </Card>
+                <div className="text-sm text-slate-500 mt-1">months of supply</div>
 
-            {/* New Listings */}
-            <Card className="border-0 shadow-xl bg-gradient-to-br from-gray-900 via-gray-700 to-black hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-gray-300 font-medium">New Listings</p>
-                    <p className="text-2xl font-bold text-white">
-                      {marketData.NewListings.toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                {mt && (
+                  <Badge className={`mt-3 border ${mtStyle.badge}`}>
+                    <span className={`inline-block w-2 h-2 rounded-full mr-1.5 ${mtStyle.dot}`} />
+                    {mt}
+                  </Badge>
+                )}
 
-            {/* Pending Sales */}
-            <Card className="border-0 shadow-xl bg-gradient-to-br from-black via-gray-600 to-gray-800 hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-gray-300 font-medium">Pending Sales</p>
-                    <p className="text-2xl font-bold text-white">
-                      {marketData.PendingSales.toLocaleString()}
-                    </p>
+                {/* Market-type scale */}
+                {markerPct != null && (
+                  <div className="w-full mt-5">
+                    <div className="relative h-2 rounded-full overflow-hidden flex">
+                      <div className="bg-red-400" style={{ width: '40%' }} />
+                      <div className="bg-amber-300" style={{ width: '30%' }} />
+                      <div className="bg-blue-400" style={{ width: '30%' }} />
+                      <div
+                        className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white border-2 border-slate-700 shadow"
+                        style={{ left: `${markerPct}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between w-full text-[10px] text-slate-400 mt-1">
+                      <span>Seller</span>
+                      <span>Balanced</span>
+                      <span>Buyer</span>
+                    </div>
                   </div>
-                  <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                )}
 
-            {/* Closed Sales */}
-            <Card className="border-0 shadow-xl bg-gradient-to-br from-gray-800 via-black to-gray-700 hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-gray-300 font-medium">Closed Sales</p>
-                    <p className="text-2xl font-bold text-white">
-                      {marketData.ClosedSales.toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                </div>
+                {marketData.as_of && (
+                  <div className="text-xs text-slate-400 mt-4">Data as of {marketData.as_of}</div>
+                )}
               </CardContent>
             </Card>
           </div>
 
-          {/* Market Analysis */}
-          <div className="mt-6 p-4 bg-slate-50 rounded-lg">
-            <h4 className="text-sm font-semibold text-slate-700 mb-3">Market Analysis</h4>
-            <div className="text-xs text-slate-600 space-y-2">
-              <p>• <strong>Market Type:</strong> {marketHealth.status}</p>
-              <p>• <strong>Barometer Index:</strong> {percentage}% ({marketData.BarometerIndex.toFixed(2)})</p>
-              <p>• <strong>Supply Level:</strong> {monthsOfInventory} months of inventory available</p>
-              <p>• <strong>Demand Indicator:</strong> {marketData.PendingSales} properties under contract</p>
-              <p>• <strong>Market Activity:</strong> {marketData.NewListings} new listings vs {marketData.ClosedSales} closed sales</p>
-              {marketData.BarometerIndex < 0.3 && <p>• <strong>Opportunity:</strong> Buyer's market - favorable conditions for buyers</p>}
-              {marketData.BarometerIndex > 0.7 && <p>• <strong>Challenge:</strong> Seller's market - competitive conditions for buyers</p>}
-              {marketData.BarometerIndex >= 0.3 && marketData.BarometerIndex <= 0.7 && <p>• <strong>Balance:</strong> Balanced market - fair conditions for both buyers and sellers</p>}
+          {/* Counters + analysis */}
+          <div className="lg:col-span-2">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {counters.map(({ key, bucket, label, value, icon: Icon, gradient, tip }) => (
+                <Tooltip key={key}>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={() => openDrill(bucket, label)}
+                      className="text-left"
+                    >
+                      <Card className={`border-0 shadow-xl bg-gradient-to-br ${gradient} hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer`}>
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-xs text-gray-300 font-medium">{label}</p>
+                              <p className="text-2xl font-bold text-white">{num(value)}</p>
+                            </div>
+                            <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                              <Icon className="w-4 h-4 text-white" />
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-xs">{tip}</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Click to view transactions</p>
+                  </TooltipContent>
+                </Tooltip>
+              ))}
+            </div>
+
+            {/* Market Analysis */}
+            <div className="mt-6 p-4 bg-slate-50 rounded-lg">
+              <h4 className="text-sm font-semibold text-slate-700 mb-3">Market Analysis</h4>
+              <div className="text-xs text-slate-600 space-y-2">
+                {mt && <p>• <strong>Market Type:</strong> {mt}</p>}
+                <p>• <strong>Months of Supply:</strong> {mos == null ? 'Not enough data' : `${Number(mos).toFixed(1)} months`}</p>
+                <p>• <strong>Demand:</strong> {num(marketData.PendingSales)} under contract · {num(marketData.ClosedSales)} closed{marketData.window_days ? ` (last ${marketData.window_days} days)` : ''}</p>
+                <p>• <strong>Activity:</strong> {num(marketData.NewListings)} new listings{marketData.window_days ? ` (last ${marketData.window_days} days)` : ''}</p>
+              </div>
+              {Array.isArray(marketData.property_types_applied) && marketData.property_types_applied.length > 0 && (
+                <p className="text-[11px] text-slate-400 mt-3 pt-3 border-t border-slate-200">
+                  Showing: {marketData.property_types_applied.join(', ')}
+                </p>
+              )}
             </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Transaction drill-down modal */}
+      <Dialog open={!!drill} onOpenChange={(open) => { if (!open) setDrill(null) }}>
+        <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="text-slate-800">
+              {drill?.label} {drillData?.count != null && !drillLoading ? `· ${drillData.count}` : ''}
+            </DialogTitle>
+          </DialogHeader>
+
+          {drillLoading ? (
+            <div className="flex items-center justify-center gap-2 py-16 text-slate-500">
+              <Loader2 className="h-5 w-5 animate-spin" /> Loading transactions…
+            </div>
+          ) : !drillData?.transactions?.length ? (
+            <div className="py-16 text-center text-slate-500 text-sm">No transactions found.</div>
+          ) : (
+            <div className="overflow-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="sticky top-0 bg-white border-b border-slate-200">
+                  <tr className="text-slate-500">
+                    <th className="px-3 py-2 font-medium">MLS ID</th>
+                    <th className="px-3 py-2 font-medium">Address</th>
+                    <th className="px-3 py-2 font-medium">Status</th>
+                    <th className="px-3 py-2 font-medium">On-Market</th>
+                    <th className="px-3 py-2 font-medium">Close</th>
+                    <th className="px-3 py-2 font-medium text-right">List Price</th>
+                    <th className="px-3 py-2 font-medium text-right">Close Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {drillData.transactions.map((t: any, i: number) => (
+                    <tr key={`${t.mls_id}-${i}`} className="border-b border-slate-100 hover:bg-slate-50">
+                      <td className="px-3 py-2 text-slate-700">{t.mls_id ?? '—'}</td>
+                      <td className="px-3 py-2 text-slate-700">{t.address ?? '—'}</td>
+                      <td className="px-3 py-2 text-slate-600">{t.status ?? '—'}</td>
+                      <td className="px-3 py-2 text-slate-600">{t.onmarketdate ?? '—'}</td>
+                      <td className="px-3 py-2 text-slate-600">{t.closedate ?? '—'}</td>
+                      <td className="px-3 py-2 text-right text-slate-700">{currency(t.listprice)}</td>
+                      <td className="px-3 py-2 text-right text-slate-700">{currency(t.closeprice)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
