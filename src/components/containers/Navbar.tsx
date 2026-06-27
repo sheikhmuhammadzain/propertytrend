@@ -1,6 +1,6 @@
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { MenuBar } from '../ui/glow-menu'
-import { BarChart3, LogOut, Users } from 'lucide-react'
+import { BarChart3, LogOut, Users, FileText } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/context'
 import {
@@ -28,6 +28,7 @@ const Navbar: React.FC = () => {
     const path = location.pathname
     if (path === '/charts') setActiveItem("Charts")
     else if (path === '/users') setActiveItem("Users")
+    else if (path === '/admin/blog') setActiveItem("Blog")
     else setActiveItem("")
   }, [location])
 
@@ -47,6 +48,13 @@ const Navbar: React.FC = () => {
           href: "/users",
           gradient: "radial-gradient(circle, rgba(99,102,241,0.15) 0%, rgba(79,70,229,0.06) 50%, rgba(67,56,202,0) 100%)",
           iconColor: "text-indigo-500",
+        },
+        {
+          icon: FileText,
+          label: "Blog",
+          href: "/admin/blog",
+          gradient: "radial-gradient(circle, rgba(245,158,11,0.15) 0%, rgba(217,119,6,0.06) 50%, rgba(180,83,9,0) 100%)",
+          iconColor: "text-amber-500",
         },
       ] : []),
       {
@@ -84,7 +92,17 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Navigation Menu / CTA - Right-aligned on desktop */}
-          <div className="flex items-center justify-end ml-auto">
+          <div className="flex items-center justify-end ml-auto gap-2 sm:gap-4">
+            <Link
+              to="/blog"
+              className={`font-light uppercase tracking-[0.15em] text-xs sm:text-sm transition-colors ${
+                location.pathname.startsWith('/blog')
+                  ? 'text-[#3A3B40]'
+                  : 'text-[#3A3B40]/70 hover:text-[#3A3B40]'
+              }`}
+            >
+              Insights
+            </Link>
             {getToken() ? (
               <MenuBar
                 items={menuItems}

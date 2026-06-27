@@ -117,6 +117,40 @@ export class ApiService {
       'users'
     );
   }
+
+  // ---------------- Blog ----------------
+  async getBlogPosts(params?: { limit?: number; offset?: number; tag?: string }): Promise<ApiResponse<any>> {
+    const search = new URLSearchParams();
+    if (params?.limit != null) search.set('limit', String(params.limit));
+    if (params?.offset != null) search.set('offset', String(params.offset));
+    if (params?.tag) search.set('tag', params.tag);
+    const qs = search.toString();
+    return await this.callApi<any>('GET', `blog${qs ? `?${qs}` : ''}`);
+  }
+
+  async getBlogPost(slug: string): Promise<ApiResponse<any>> {
+    return await this.callApi<any>('GET', `blog/${encodeURIComponent(slug)}`);
+  }
+
+  async adminGetBlogPosts(): Promise<ApiResponse<any>> {
+    return await this.callApi<any>('GET', 'blog/admin/all');
+  }
+
+  async adminGetBlogPost(id: number): Promise<ApiResponse<any>> {
+    return await this.callApi<any>('GET', `blog/admin/${id}`);
+  }
+
+  async createBlogPost(data: any): Promise<ApiResponse<any>> {
+    return await this.callApi<any>('POST', 'blog', data);
+  }
+
+  async updateBlogPost(id: number, data: any): Promise<ApiResponse<any>> {
+    return await this.callApi<any>('PUT', `blog/${id}`, data);
+  }
+
+  async deleteBlogPost(id: number): Promise<ApiResponse<any>> {
+    return await this.callApi<any>('DELETE', `blog/${id}`);
+  }
 }
 
 export const apiService = new ApiService();

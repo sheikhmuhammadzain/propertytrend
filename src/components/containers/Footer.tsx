@@ -13,12 +13,20 @@ const Footer = () => {
         <p className='text-[#3A3B40] font-[300px] font-montserrat text-[14px] tracking-wider'>
           AT DOUGLAS ELLIMAN REAL ESTATE
         </p>
-        <Link
-          to="/methodology"
-          className="mt-4 text-[#3A3B40] font-light uppercase tracking-[0.2em] text-xs hover:underline"
-        >
-          Methodology & Transparency
-        </Link>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+          <Link
+            to="/blog"
+            className="text-[#3A3B40] font-light uppercase tracking-[0.2em] text-xs hover:underline"
+          >
+            Insights
+          </Link>
+          <Link
+            to="/methodology"
+            className="text-[#3A3B40] font-light uppercase tracking-[0.2em] text-xs hover:underline"
+          >
+            Methodology & Transparency
+          </Link>
+        </div>
       </div>
     </div>
   )
